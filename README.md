@@ -17,7 +17,7 @@ Kindle has a Vocabulary Builder. Paper books had nothing. Now they do, and the p
 3. **Understand** in ~15 seconds: each word with its base form and its meaning *in that sentence*.
 4. **Accept** and the words land on your book's page. Keep reading.
 
-Later, browse everything on the **Board**: every word from every book, with the original sentences, search, filters and "most often met" sorting.
+Later, browse everything in the **Words** tab: every word from every book, with the original sentences, search, filters and "most often met" sorting.
 
 ## Why it's different
 

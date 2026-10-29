@@ -140,7 +140,7 @@ const router = createBrowserRouter([
             ),
           },
           {
-            path: '/board',
+            path: '/words',
             element: (
               <AppPage>
                 <BoardPage />

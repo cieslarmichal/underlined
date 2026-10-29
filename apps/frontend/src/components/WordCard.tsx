@@ -11,7 +11,7 @@ interface Props {
   onDelete: () => void;
 }
 
-// Board card: the dictionary entry with all distinct meanings; sentences stay collapsed until the reader asks.
+// Word card: the dictionary entry with all distinct meanings; sentences stay collapsed until the reader asks.
 export default function WordCard({ word, onEdit, onDelete }: Props) {
   const [expanded, setExpanded] = useState(false);
   const meanings = [...new Set(word.occurrences.map((occurrence) => occurrence.translation))];

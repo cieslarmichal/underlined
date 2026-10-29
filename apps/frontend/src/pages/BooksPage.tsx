@@ -12,7 +12,7 @@ import { useAsyncData } from '../hooks/useAsyncData';
 import { useSEO } from '../hooks/useSEO';
 
 export default function BooksPage() {
-  useSEO({ title: `Books - ${site.name}`, noindex: true });
+  useSEO({ title: `Library - ${site.name}`, noindex: true });
 
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -21,7 +21,7 @@ export default function BooksPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Books</h1>
+        <h1 className="text-2xl font-bold">Library</h1>
         <Button
           onClick={() => setDialogOpen(true)}
           className="h-11"

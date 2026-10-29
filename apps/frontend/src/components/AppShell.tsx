@@ -1,4 +1,4 @@
-import { BookOpen, LayoutGrid, Library } from 'lucide-react';
+import { BookA, BookOpen, Library } from 'lucide-react';
 import { matchPath, NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ export default function AppShell() {
             className={() => linkClass({ isActive: pathname.startsWith('/books/') })}
           >
             <BookOpen className="size-5" />
-            Book
+            Reading
           </NavLink>
           <NavLink
             to="/books"
@@ -39,14 +39,14 @@ export default function AppShell() {
             className={linkClass}
           >
             <Library className="size-5" />
-            Books
+            Library
           </NavLink>
           <NavLink
-            to="/board"
+            to="/words"
             className={linkClass}
           >
-            <LayoutGrid className="size-5" />
-            Board
+            <BookA className="size-5" />
+            Words
           </NavLink>
         </div>
       </nav>

@@ -28,7 +28,7 @@ import { apiErrorMessage } from '../lib/apiErrorMessage';
 const allBooks = 'all';
 
 export default function BoardPage() {
-  useSEO({ title: `Board - ${site.name}`, noindex: true });
+  useSEO({ title: `Words - ${site.name}`, noindex: true });
 
   const [bookId, setBookId] = useState(allBooks);
   const [search, setSearch] = useState('');
@@ -59,7 +59,7 @@ export default function BoardPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="mb-4 text-2xl font-bold">Board</h1>
+      <h1 className="mb-4 text-2xl font-bold">Words</h1>
 
       <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_12rem_12rem]">
         <div className="relative">

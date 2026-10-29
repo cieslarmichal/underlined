@@ -277,6 +277,8 @@ Rejestracja ze startera dostaje dodatkowe pole `nativeLanguage`.
 5. Podgląd wyniku: lista słów, „Przyjmij wszystkie” / „Odrzuć”
 6. Board: filtr, wyszukiwarka, sortowanie, karty słów
 
+W interfejsie (po angielsku) dolna nawigacja nazywa się: **Reading** (strona książki), **Library** (lista książek) i **Words** (Board). W tym dokumencie zostają nazwy robocze.
+
 Interfejs projektujemy najpierw pod telefon. Desktop to tylko szersza wersja Boardu.
 
 ## Aplikacja w telefonie (PWA)
