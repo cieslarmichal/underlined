@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 
 import { site } from '../config';
+import Logo from './Logo';
 
 const productLinks = [
   { name: 'Home', href: '/' },
@@ -24,9 +25,7 @@ export default function Footer() {
               to="/"
               className="flex items-center gap-3 group w-fit"
             >
-              <div className="h-8 w-8 bg-primary-foreground rounded-md flex items-center justify-center transition-transform group-hover:scale-105">
-                <span className="text-primary font-bold text-lg">{site.initials}</span>
-              </div>
+              <Logo className="size-8 ring-1 ring-primary-foreground/20 transition-transform group-hover:scale-105" />
               <h2 className="text-xl font-bold tracking-tight">{site.name}</h2>
             </Link>
             <div className="flex items-center gap-2 mt-5">

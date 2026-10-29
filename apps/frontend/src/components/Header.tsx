@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { site } from '../config';
 import { LogOut, User } from 'lucide-react';
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from '@/components/ui/Menubar';
+import Logo from './Logo';
 import { Button } from './ui/Button';
 import { Skeleton } from './ui/Skeleton';
 
@@ -21,9 +22,7 @@ export default function Header() {
             to={'/'}
             className="flex items-center gap-3 group"
           >
-            <div className="h-9 w-9 bg-primary rounded-md flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-primary-foreground font-bold text-lg">{site.initials}</span>
-            </div>
+            <Logo className="transition-transform group-hover:scale-105" />
             <span className="hidden sm:block text-xl font-bold text-foreground tracking-tight whitespace-nowrap">
               {site.name}
             </span>
