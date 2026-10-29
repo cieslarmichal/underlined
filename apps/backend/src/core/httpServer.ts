@@ -108,39 +108,37 @@ export class HttpServer {
         return;
       }
 
-      request.startTime = Date.now();
-
       const requestId = IdService.generateUuid();
       request.id = requestId;
       reply.header('X-Request-ID', requestId);
 
-      this.loggerService.info({
-        message: 'Incoming HTTP request',
-        requestId: request.id,
-        method: request.method,
-        url: request.url,
-      });
-
       done();
     });
 
-    this.fastifyServer.addHook('onSend', (request, reply, _payload, done) => {
+    this.fastifyServer.addHook('onResponse', (request, reply, done) => {
       if (skipRequestLog(request)) {
         done();
         return;
       }
 
-      const durationMs = request.startTime ? Date.now() - request.startTime : undefined;
-
-      this.loggerService.info({
+      const logPayload = {
         message: 'Request completed',
         requestId: request.id,
         method: request.method,
         url: request.url,
+        route: request.routeOptions.url,
         statusCode: reply.statusCode,
         userId: request.user?.userId,
-        durationMs,
-      });
+        durationMs: Math.round(reply.elapsedTime * 100) / 100,
+      };
+
+      if (reply.statusCode >= 500) {
+        this.loggerService.error({ ...logPayload, userAgent: request.headers['user-agent'] });
+      } else if (reply.statusCode >= 400) {
+        this.loggerService.warn({ ...logPayload, userAgent: request.headers['user-agent'] });
+      } else {
+        this.loggerService.info(logPayload);
+      }
 
       done();
     });

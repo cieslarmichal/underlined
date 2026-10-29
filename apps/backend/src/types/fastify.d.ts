@@ -7,7 +7,6 @@ declare module 'fastify' {
       email: string;
       role: UserRole;
     };
-    startTime?: number;
   }
 }
 
