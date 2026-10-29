@@ -32,6 +32,8 @@ Wszystkie słowa ze wszystkich książek przegląda się na **Boardzie**.
 - **Język książki** wybierasz przy dodawaniu książki. Na start: `en` albo `es`.
 - Język książki nie może być taki sam jak język ojczysty (walidacja w formularzu i na backendzie).
 - Zmiana języka ojczystego działa tylko na nowe zdjęcia. Stare słowa zostają z tłumaczeniem w poprzednim języku.
+- **Interfejs aplikacji jest po angielsku**, niezależnie od języka ojczystego (aplikacja ma być globalna). Tłumaczone są tylko słowa z książek, nie UI.
+- Główne przypadki użycia: `en → pl` i `es → pl`. Pozostałe kombinacje dozwolonych języków (np. `es → en`) też działają, ale nie są priorytetem przy testach promptu.
 
 ## Zakres MVP
 
@@ -49,7 +51,7 @@ Wszystkie słowa ze wszystkich książek przegląda się na **Boardzie**.
    - Aplikacja po uruchomieniu otwiera ostatnio otwartą książkę.
    - Baner „N zdjęć czeka na akceptację”, jeśli zamknąłeś podgląd bez decyzji.
 4. **Dodanie zdjęcia strony.**
-   - Na stronie książki klikasz 📷, robisz zdjęcie albo bierzesz je z galerii. Nic więcej nie podajesz.
+   - Na stronie książki klikasz 📷 i od razu otwiera się tylny aparat. Obok jest mały link „z galerii”. Nic więcej nie podajesz.
    - Zdjęcie jest zmniejszane w przeglądarce (dłuższy bok około 2000 px) i wysyłane na serwer.
    - Backend zapisuje zdjęcie w S3, wywołuje model synchronicznie i zwraca wynik (schemat poniżej).
    - Dzienny limit zdjęć na użytkownika (domyślnie 10, zmienialny w bazie per użytkownik).
@@ -69,6 +71,7 @@ Wszystkie słowa ze wszystkich książek przegląda się na **Boardzie**.
    - Edycja znaczenia przy konkretnym zdaniu.
    - Usunięcie na stronie książki usuwa wystąpienia słowa w tej książce. Jeśli słowo nie ma już żadnych wystąpień, usuwamy je całe.
    - Usunięcie na Boardzie usuwa całe słowo ze wszystkimi wystąpieniami.
+8. **PWA.** Instalacja na ekranie głównym i działanie na pełnym ekranie jak natywna aplikacja (szczegóły w sekcji „Aplikacja w telefonie”).
 
 ### Poza MVP (później)
 
@@ -79,7 +82,8 @@ Wszystkie słowa ze wszystkich książek przegląda się na **Boardzie**.
 - Wybór pojedynczych słów i poprawki w podglądzie
 - Tłumaczenie całego zdania na żądanie
 - Więcej języków (ojczystych i książek)
-- PWA: instalacja na ekranie głównym, powiadomienia
+- Powiadomienia push
+- Tryb offline
 - Natywna aplikacja (Expo)
 - Okładki i wyszukiwanie książek w zewnętrznej bazie
 
@@ -274,6 +278,36 @@ Rejestracja ze startera dostaje dodatkowe pole `nativeLanguage`.
 6. Board: filtr, wyszukiwarka, sortowanie, karty słów
 
 Interfejs projektujemy najpierw pod telefon. Desktop to tylko szersza wersja Boardu.
+
+## Aplikacja w telefonie (PWA)
+
+Strona instaluje się na ekranie głównym i otwiera bez interfejsu przeglądarki, jak natywna aplikacja.
+
+**Instalacja**
+
+- Manifest (`manifest.webmanifest`): `name`, `short_name`, `start_url: "/"`, `display: "standalone"`, `orientation: "portrait"`, `theme_color`, `background_color`, ikony 192 i 512 px oraz wersja `maskable`.
+- Meta tagi dla iOS w `index.html`: `apple-touch-icon`, `apple-mobile-web-app-capable`, `viewport` z `viewport-fit=cover`.
+- Minimalny service worker, który cache'uje statyczne pliki (szybki start). Bez trybu offline, bo rozpoznawanie i tak wymaga sieci. Na Vite: `vite-plugin-pwa`.
+- Android sam proponuje instalację. Na iOS trzeba to zrobić ręcznie („Udostępnij → Do ekranu początkowego”), więc aplikacja pokazuje jednorazową podpowiedź, jeśli nie działa w trybie standalone.
+
+**Aparat**
+
+- Główny przycisk 📷: `<input type="file" accept="image/*" capture="environment">`, czyli jeden tap do tylnego aparatu.
+- Link „z galerii”: ten sam input bez `capture`.
+- Bez API kamery i bez proszenia o uprawnienia.
+
+**Wygląd i zachowanie jak w aplikacji**
+
+- `100dvh` zamiast `100vh`, odstępy `env(safe-area-inset-*)` pod notch i pasek domowy.
+- Inputy z czcionką co najmniej 16 px (iOS nie powiększa wtedy strony przy fokusie).
+- `overscroll-behavior: none`, żeby nie było pull-to-refresh i odbijania strony.
+- Dolny pasek nawigacji: Książka / Książki / Board. Przyciski co najmniej 44 px.
+- `start_url: "/"` przekierowuje na ostatnio otwartą książkę z `localStorage`.
+
+**Sesja**
+
+- Zainstalowana PWA na iOS ma osobne ciasteczka i `localStorage` niż Safari, więc po instalacji trzeba zalogować się ponownie. Podpowiedź instalacji o tym uprzedza.
+- Sesja trwa długo (refresh token na 30+ dni), żeby aplikacja nie wylogowywała w trakcie czytania.
 
 ## Ryzyka do sprawdzenia przed budową UI
 
