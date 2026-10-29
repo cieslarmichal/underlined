@@ -41,7 +41,7 @@ export class DeleteBookAction {
     const imageKeys = await this.bookRepository.delete(id);
 
     try {
-      await this.s3Service.deleteBlobs(this.config.aws.bucketName, imageKeys);
+      await this.s3Service.deleteFiles(this.config.aws.bucketName, imageKeys);
     } catch (error) {
       this.loggerService.warn({
         message: 'Failed to delete capture images of a deleted book',

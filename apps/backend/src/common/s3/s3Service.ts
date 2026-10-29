@@ -63,17 +63,17 @@ export class S3Service {
     return { location: Location as string };
   }
 
-  public async getFile(bucketName: string, fileName: string): Promise<Buffer> {
-    const { Body } = await this.s3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: fileName }));
+  public async getFile(bucketName: string, key: string): Promise<Buffer> {
+    const { Body } = await this.s3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: key }));
 
     if (!Body) {
-      throw new Error(`S3 object ${fileName} has no body`);
+      throw new Error(`S3 object ${key} has no body`);
     }
 
     return Buffer.from(await Body.transformToByteArray());
   }
 
-  public async deleteBlobs(bucketName: string, fileNames: string[]): Promise<void> {
+  public async deleteFiles(bucketName: string, fileNames: string[]): Promise<void> {
     if (fileNames.length === 0) {
       return;
     }
