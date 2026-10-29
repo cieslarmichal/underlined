@@ -6,7 +6,7 @@ import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { fastify, type FastifyInstance, type FastifyRequest } from 'fastify';
 import type { FastifySchemaValidationError } from 'fastify/types/schema.js';
 
-import { AnthropicPageAnalysisService } from '../common/ai/anthropicPageAnalysisService.ts';
+import { OpenRouterPageAnalysisService } from '../common/ai/openRouterPageAnalysisService.ts';
 import type { PageAnalysisService } from '../common/ai/pageAnalysisService.ts';
 import { TokenService } from '../common/auth/tokenService.ts';
 import { AccountDisabledError } from '../common/errors/accountDisabledError.ts';
@@ -21,6 +21,7 @@ import { UnauthorizedAccessError } from '../common/errors/unathorizedAccessError
 import { IdService } from '../common/id/idService.ts';
 import { ImageOptimizationService } from '../common/imageOptimization/imageOptimizationService.ts';
 import { type LoggerService } from '../common/logger/loggerService.ts';
+import { OpenRouterService } from '../common/openRouter/openRouterService.ts';
 import { S3ClientFactory, type S3Config } from '../common/s3/s3ClientFactory.ts';
 import { S3Service } from '../common/s3/s3Service.ts';
 import type { DatabaseClient } from '../infrastructure/database/databaseClient.ts';
@@ -54,7 +55,8 @@ export class HttpServer {
     this.loggerService = loggerService;
     this.databaseClient = databaseClient;
     this.emailQueueService = emailQueueService;
-    this.pageAnalysisService = pageAnalysisService ?? new AnthropicPageAnalysisService(config.anthropic);
+    this.pageAnalysisService =
+      pageAnalysisService ?? new OpenRouterPageAnalysisService(new OpenRouterService(config.openRouter, loggerService));
 
     this.fastifyServer = fastify({
       bodyLimit: maxBodySize,

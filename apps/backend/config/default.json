@@ -104,9 +104,15 @@
     "allowedContentTypes": ["image/jpeg", "image/jpg", "image/png", "image/webp"]
   },
   "emailQueueName": "send-email",
-  "anthropic": {
-    "model": "claude-sonnet-5-5",
+  "openRouter": {
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "model": "anthropic/claude-sonnet-5.5",
+    "temperature": 0,
     "maxTokens": 4096,
-    "timeoutMs": 60000
+    "maxMessageLength": 100000,
+    "maxRetries": 2,
+    "retryDelayMs": 1000,
+    "requestTimeoutMs": 60000,
+    "maxRetryDelayMs": 10000
   }
 }

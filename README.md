@@ -33,7 +33,7 @@ Currently supports English and Spanish books with Polish or English translations
 TypeScript monorepo built on [fullstack-starter](https://github.com/cieslarmichal/fullstack-starter).
 
 - **Backend:** Fastify, PostgreSQL + Drizzle, S3, Sharp
-- **AI:** Claude with vision and forced structured output (Anthropic SDK)
+- **AI:** any vision model through [OpenRouter](https://openrouter.ai) with strict JSON-schema output (Claude Sonnet 5.5 by default, switch with one config value)
 - **Frontend:** React 19, Tailwind, Radix, Vite PWA
 
 ## Run locally
@@ -46,7 +46,7 @@ docker exec underlined-localstack awslocal s3 mb s3://underlined-bucket
 export DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
 npm run db:migrate --workspace=@apps/backend
 
-export ANTHROPIC_API_KEY=...    # required
+export OPENROUTER_API_KEY=...   # required
 export RESEND_API_KEY=...       # required for verification emails
 npm run dev --workspace=@apps/backend
 npm run dev --workspace=@apps/frontend

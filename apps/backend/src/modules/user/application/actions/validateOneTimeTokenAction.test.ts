@@ -25,11 +25,7 @@ describe('ValidateOneTimeTokenAction', () => {
     userRepository = new UserRepositoryImpl(databaseClient);
     oneTimeTokenRepository = new OneTimeTokenRepositoryImpl(databaseClient);
 
-    validateOneTimeTokenAction = new ValidateOneTimeTokenAction(
-      userRepository,
-      loggerService,
-      oneTimeTokenRepository,
-    );
+    validateOneTimeTokenAction = new ValidateOneTimeTokenAction(userRepository, loggerService, oneTimeTokenRepository);
 
     await databaseClient.db.delete(oneTimeTokens);
     await databaseClient.db.delete(users);

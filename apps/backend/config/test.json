@@ -64,7 +64,7 @@
       "secret": "12321313423565365654546654121890008b"
     }
   },
-  "anthropic": {
-    "apiKey": "dummy-anthropic-key"
+  "openRouter": {
+    "apiKey": "dummy-openrouter-key"
   }
 }

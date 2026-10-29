@@ -35,7 +35,7 @@ describe('CreateCaptureAction', () => {
       .toBuffer();
 
     const s3Service = {
-      uploadBlob: async (payload: UploadFilePayload): Promise<{ location: string }> => {
+      uploadFile: async (payload: UploadFilePayload): Promise<{ location: string }> => {
         uploads.push(payload);
         return { location: payload.fileName };
       },

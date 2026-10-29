@@ -25,7 +25,7 @@ describe('DeleteBookAction', () => {
     s3Fails = false;
 
     const s3Service = {
-      deleteBlobs: async (_bucket: string, keys: string[]): Promise<void> => {
+      deleteFiles: async (_bucket: string, keys: string[]): Promise<void> => {
         if (s3Fails) throw new Error('s3 down');
         deletedKeys.push(...keys);
       },

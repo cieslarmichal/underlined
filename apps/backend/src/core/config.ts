@@ -34,11 +34,17 @@ const configSchema = Type.Object({
       keepAliveInitialDelayMillis: Type.Number({ minimum: 0, maximum: 30000 }),
     }),
   }),
-  anthropic: Type.Object({
+  openRouter: Type.Object({
     apiKey: Type.String({ minLength: 1 }),
+    baseUrl: Type.String({ minLength: 1 }),
     model: Type.String({ minLength: 1 }),
+    temperature: Type.Number({ minimum: 0, maximum: 2 }),
     maxTokens: Type.Number({ minimum: 256 }),
-    timeoutMs: Type.Number({ minimum: 1000 }),
+    maxMessageLength: Type.Number({ minimum: 1000, maximum: 1000000 }),
+    maxRetries: Type.Number({ minimum: 1, maximum: 10 }),
+    retryDelayMs: Type.Number({ minimum: 100, maximum: 10000 }),
+    requestTimeoutMs: Type.Number({ minimum: 1000, maximum: 120000 }),
+    maxRetryDelayMs: Type.Number({ minimum: 100, maximum: 60000 }),
   }),
   cookie: Type.Object({
     secret: Type.String({ minLength: 1 }),

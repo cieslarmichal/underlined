@@ -28,7 +28,7 @@ describe('RetryCaptureAction', () => {
     modelResult = [fled];
 
     const s3Service = {
-      getBlob: async (_bucket: string, key: string): Promise<Buffer> => {
+      getFile: async (_bucket: string, key: string): Promise<Buffer> => {
         downloaded.push(key);
         return Buffer.from('img');
       },

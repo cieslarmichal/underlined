@@ -63,9 +63,9 @@ describe('VerifyUserEmailAction', () => {
     it('throws OperationNotValidError for invalid token', async () => {
       const context = Generator.executionContext();
 
-      await expect(
-        verifyUserEmailAction.execute({ emailVerificationToken: 'invalid-token' }, context),
-      ).rejects.toThrow(OperationNotValidError);
+      await expect(verifyUserEmailAction.execute({ emailVerificationToken: 'invalid-token' }, context)).rejects.toThrow(
+        OperationNotValidError,
+      );
     });
 
     it('throws OperationNotValidError when email is already verified', async () => {
@@ -78,9 +78,9 @@ describe('VerifyUserEmailAction', () => {
 
       await oneTimeTokenRepository.create({ userId: user.id, tokenHash, purpose: 'email-verification', expiresAt });
 
-      await expect(
-        verifyUserEmailAction.execute({ emailVerificationToken: rawToken }, context),
-      ).rejects.toThrow(OperationNotValidError);
+      await expect(verifyUserEmailAction.execute({ emailVerificationToken: rawToken }, context)).rejects.toThrow(
+        OperationNotValidError,
+      );
     });
   });
 });

@@ -207,7 +207,7 @@ Celowo nie przechowujemy:
 }
 ```
 
-- Model: Claude (Sonnet) z obsługą obrazów i wymuszonym schematem JSON.
+- Model: dowolny model z obsługą obrazów i wymuszonym schematem JSON, wołany przez OpenRouter (domyślnie `anthropic/claude-sonnet-5.5`, zmiana w `openRouter.model`). Wybór modelu rozstrzygają testy na prawdziwych zdjęciach.
 - `translation` to znaczenie słowa w tym zdaniu, w języku ojczystym i w formie podstawowej (*staunchest* → „oddany”, a nie „najbardziej oddany”). Od jednego do trzech synonimów po przecinku, bez komentarzy.
 - Terminy ze świata książki (wymyślone słowa, przedmioty, nazwy). Model korzysta z tytułu książki, żeby wiedzieć, z jakiego świata pochodzą.
   - Jeśli istnieje oficjalne tłumaczenie w języku ojczystym, model go używa i dopisuje krótkie wyjaśnienie w nawiasie: *Squib* → „charłak (osoba z rodziny czarodziejów bez zdolności magicznych)”.
@@ -321,4 +321,4 @@ Na bazie `fullstack-starter`:
 
 - Fastify, PostgreSQL + Drizzle, React 19, Tailwind, Radix
 - S3 + Sharp (już w starterze)
-- Anthropic SDK do wywołań modelu
+- OpenRouter do wywołań modelu (jedna abstrakcja, łatwa zmiana modelu)

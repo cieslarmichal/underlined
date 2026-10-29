@@ -47,10 +47,7 @@ describe('ChangePasswordAction', () => {
 
     const newPassword = 'NewPassword123!';
 
-    await changePasswordAction.execute(
-      { userId: user.id, currentPassword: rawPassword, newPassword },
-      context,
-    );
+    await changePasswordAction.execute({ userId: user.id, currentPassword: rawPassword, newPassword }, context);
 
     const updatedUser = await userRepository.findById(user.id);
     expect(updatedUser).toBeDefined();
