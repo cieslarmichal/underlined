@@ -30,4 +30,19 @@ export const booksResponseSchema = Type.Object({
   data: Type.Array(bookSchema),
 });
 
+export const bookSuggestionsQuerySchema = Type.Object({
+  q: Type.String({ maxLength: 100 }),
+  language: Type.Optional(bookLanguageSchema),
+});
+
+export const bookSuggestionsResponseSchema = Type.Object({
+  data: Type.Array(
+    Type.Object({
+      title: Type.String(),
+      author: Type.Union([Type.String(), Type.Null()]),
+      year: Type.Union([Type.Number(), Type.Null()]),
+    }),
+  ),
+});
+
 export type BookDto = Static<typeof bookSchema>;

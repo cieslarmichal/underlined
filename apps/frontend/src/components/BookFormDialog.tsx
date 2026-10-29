@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/Dialog';
 import { Input } from '@/components/ui/Input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { createBook, updateBook } from '../api/queries/books';
+import { createBook, searchBookSuggestions, updateBook, type BookSuggestion } from '../api/queries/books';
 import type { Book } from '../api/types/book';
 import { bookLanguages, languageNames, type BookLanguage } from '../api/types/language';
 import { AuthContext } from '../context/AuthContext';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { useDebounce } from '../hooks/useDebounce';
 import { apiErrorMessage } from '../lib/apiErrorMessage';
+import BookSuggestions from './BookSuggestions';
 
 interface Props {
   open: boolean;
@@ -27,6 +30,22 @@ export default function BookFormDialog({ open, onOpenChange, book, onSaved }: Pr
   const [author, setAuthor] = useState(book?.author ?? '');
   const [language, setLanguage] = useState<BookLanguage>(book?.language ?? availableLanguages[0] ?? 'en');
   const [saving, setSaving] = useState(false);
+  // The title a suggestion was picked for; no new search runs until the reader edits the title again.
+  const [pickedTitle, setPickedTitle] = useState<string>();
+
+  const query = useDebounce(title.trim(), 300);
+  const suggestionsActive = !book && query.length >= 2 && query !== pickedTitle;
+  const suggestions = useAsyncData<BookSuggestion[]>(
+    // Suggestions are a convenience: a failing lookup just means no suggestions.
+    async () => (suggestionsActive ? searchBookSuggestions(query, language).catch(() => []) : []),
+    [suggestionsActive, query, language],
+  );
+
+  function pickSuggestion(suggestion: BookSuggestion) {
+    setTitle(suggestion.title);
+    setAuthor(suggestion.author ?? '');
+    setPickedTitle(suggestion.title);
+  }
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -76,8 +95,15 @@ export default function BookFormDialog({ open, onOpenChange, book, onSaved }: Pr
               onChange={(event) => setTitle(event.target.value)}
               maxLength={255}
               required
+              autoComplete="off"
               className="h-11 text-base"
             />
+            {!book && suggestionsActive && !suggestions.loading && title.trim() !== pickedTitle && (
+              <BookSuggestions
+                suggestions={suggestions.data ?? []}
+                onSelect={pickSuggestion}
+              />
+            )}
           </div>
           <div className="space-y-1.5">
             <label

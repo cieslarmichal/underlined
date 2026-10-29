@@ -81,6 +81,10 @@
     "capture": {
       "max": 10,
       "timeWindow": 60000
+    },
+    "bookSearch": {
+      "max": 60,
+      "timeWindow": 60000
     }
   },
   "token": {
@@ -114,5 +118,13 @@
     "retryDelayMs": 1000,
     "requestTimeoutMs": 60000,
     "maxRetryDelayMs": 10000
+  },
+  "openLibrary": {
+    "baseUrl": "https://openlibrary.org",
+    "timeoutMs": 5000,
+    "userAgent": "Underlined/1.0 (https://github.com/cieslarmichal/underlined)",
+    "maxSuggestions": 8,
+    "cacheTtlMs": 600000,
+    "cacheMaxEntries": 500
   }
 }

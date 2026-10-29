@@ -46,6 +46,14 @@ const configSchema = Type.Object({
     requestTimeoutMs: Type.Number({ minimum: 1000, maximum: 120000 }),
     maxRetryDelayMs: Type.Number({ minimum: 100, maximum: 60000 }),
   }),
+  openLibrary: Type.Object({
+    baseUrl: Type.String({ minLength: 1 }),
+    timeoutMs: Type.Number({ minimum: 500, maximum: 30000 }),
+    userAgent: Type.String({ minLength: 1 }),
+    maxSuggestions: Type.Number({ minimum: 1, maximum: 20 }),
+    cacheTtlMs: Type.Number({ minimum: 0 }),
+    cacheMaxEntries: Type.Number({ minimum: 1 }),
+  }),
   cookie: Type.Object({
     secret: Type.String({ minLength: 1 }),
     refreshToken: Type.Object({
@@ -123,6 +131,10 @@ const configSchema = Type.Object({
       timeWindow: Type.Number({ minimum: 1000 }),
     }),
     uploadImage: Type.Object({
+      max: Type.Number({ minimum: 1 }),
+      timeWindow: Type.Number({ minimum: 1000 }),
+    }),
+    bookSearch: Type.Object({
       max: Type.Number({ minimum: 1 }),
       timeWindow: Type.Number({ minimum: 1000 }),
     }),

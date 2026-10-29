@@ -13,6 +13,20 @@ export interface UpdateBookInput {
   author?: string | null;
 }
 
+export interface BookSuggestion {
+  readonly title: string;
+  readonly author: string | null;
+  readonly year: number | null;
+}
+
+export const searchBookSuggestions = async (query: string, language: BookLanguage): Promise<BookSuggestion[]> => {
+  const response = await apiRequest<{ data: BookSuggestion[] }>('/books/search', {
+    method: 'GET',
+    params: new URLSearchParams({ q: query, language }),
+  });
+  return response.data;
+};
+
 export const getBooks = async (): Promise<Book[]> => {
   const response = await apiRequest<{ data: Book[] }>('/books', { method: 'GET' });
   return response.data;

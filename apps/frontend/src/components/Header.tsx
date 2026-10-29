@@ -20,6 +20,7 @@ export default function Header() {
         <div className="w-48 flex items-center">
           <Link
             to={'/'}
+            aria-label={site.name}
             className="flex items-center gap-3 group"
           >
             <Logo className="transition-transform group-hover:scale-105" />

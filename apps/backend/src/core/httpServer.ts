@@ -21,6 +21,8 @@ import { UnauthorizedAccessError } from '../common/errors/unathorizedAccessError
 import { IdService } from '../common/id/idService.ts';
 import { ImageOptimizationService } from '../common/imageOptimization/imageOptimizationService.ts';
 import { type LoggerService } from '../common/logger/loggerService.ts';
+import type { BookSuggestionService } from '../common/openLibrary/bookSuggestionService.ts';
+import { OpenLibraryService } from '../common/openLibrary/openLibraryService.ts';
 import { OpenRouterService } from '../common/openRouter/openRouterService.ts';
 import { S3ClientFactory, type S3Config } from '../common/s3/s3ClientFactory.ts';
 import { S3Service } from '../common/s3/s3Service.ts';
@@ -43,6 +45,7 @@ export class HttpServer {
   private readonly databaseClient: DatabaseClient;
   private readonly emailQueueService: EmailQueueService;
   private readonly pageAnalysisService: PageAnalysisService;
+  private readonly bookSuggestionService: BookSuggestionService;
 
   public constructor(
     config: Config,
@@ -50,11 +53,13 @@ export class HttpServer {
     databaseClient: DatabaseClient,
     emailQueueService: EmailQueueService,
     pageAnalysisService?: PageAnalysisService,
+    bookSuggestionService?: BookSuggestionService,
   ) {
     this.config = config;
     this.loggerService = loggerService;
     this.databaseClient = databaseClient;
     this.emailQueueService = emailQueueService;
+    this.bookSuggestionService = bookSuggestionService ?? new OpenLibraryService(config.openLibrary);
     this.pageAnalysisService =
       pageAnalysisService ?? new OpenRouterPageAnalysisService(new OpenRouterService(config.openRouter, loggerService));
 
@@ -339,6 +344,7 @@ export class HttpServer {
       loggerService: this.loggerService,
       config: this.config,
       tokenService,
+      bookSuggestionService: this.bookSuggestionService,
     });
 
     await this.fastifyServer.register(wordRoutes, {

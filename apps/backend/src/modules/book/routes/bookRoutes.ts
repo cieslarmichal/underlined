@@ -4,6 +4,7 @@ import { createAuthenticationMiddleware } from '../../../common/auth/authMiddlew
 import type { TokenService } from '../../../common/auth/tokenService.ts';
 import { UnauthorizedAccessError } from '../../../common/errors/unathorizedAccessError.ts';
 import type { LoggerService } from '../../../common/logger/loggerService.ts';
+import type { BookSuggestionService } from '../../../common/openLibrary/bookSuggestionService.ts';
 import type { S3Service } from '../../../common/s3/s3Service.ts';
 import type { Config } from '../../../core/config.ts';
 import type { DatabaseClient } from '../../../infrastructure/database/databaseClient.ts';
@@ -12,6 +13,7 @@ import { CreateBookAction } from '../application/actions/createBookAction.ts';
 import { DeleteBookAction } from '../application/actions/deleteBookAction.ts';
 import { FindBookAction } from '../application/actions/findBookAction.ts';
 import { FindBooksAction } from '../application/actions/findBooksAction.ts';
+import { SearchBookSuggestionsAction } from '../application/actions/searchBookSuggestionsAction.ts';
 import { UpdateBookAction } from '../application/actions/updateBookAction.ts';
 import type { Book, BookWithWordCount } from '../domain/types/book.ts';
 import { BookRepositoryImpl } from '../infrastructure/repositories/bookRepositoryImpl.ts';
@@ -19,6 +21,8 @@ import { BookRepositoryImpl } from '../infrastructure/repositories/bookRepositor
 import {
   bookIdParamsSchema,
   bookSchema,
+  bookSuggestionsQuerySchema,
+  bookSuggestionsResponseSchema,
   booksResponseSchema,
   createBookRequestSchema,
   updateBookRequestSchema,
@@ -31,8 +35,9 @@ export const bookRoutes: FastifyPluginAsyncTypebox<{
   loggerService: LoggerService;
   config: Config;
   tokenService: TokenService;
+  bookSuggestionService: BookSuggestionService;
 }> = async function (fastify, opts) {
-  const { databaseClient, s3Service, loggerService, config, tokenService } = opts;
+  const { databaseClient, s3Service, loggerService, config, tokenService, bookSuggestionService } = opts;
 
   const userRepository = new UserRepositoryImpl(databaseClient);
   const bookRepository = new BookRepositoryImpl(databaseClient);
@@ -41,6 +46,7 @@ export const bookRoutes: FastifyPluginAsyncTypebox<{
   const findBooksAction = new FindBooksAction(bookRepository);
   const createBookAction = new CreateBookAction(bookRepository, userRepository);
   const updateBookAction = new UpdateBookAction(bookRepository, findBookAction);
+  const searchBookSuggestionsAction = new SearchBookSuggestionsAction(bookSuggestionService);
   const deleteBookAction = new DeleteBookAction(bookRepository, findBookAction, s3Service, loggerService, config);
 
   const authenticationMiddleware = createAuthenticationMiddleware(tokenService, userRepository);
@@ -60,6 +66,19 @@ export const bookRoutes: FastifyPluginAsyncTypebox<{
     language: book.language,
     wordCount: 'wordCount' in book ? book.wordCount : 0,
     createdAt: book.createdAt.toISOString(),
+  });
+
+  fastify.get('/books/search', {
+    schema: { querystring: bookSuggestionsQuerySchema, response: { 200: bookSuggestionsResponseSchema } },
+    config: { rateLimit: config.rateLimit.bookSearch },
+    preValidation: [authenticationMiddleware],
+    handler: async (request, reply) => {
+      getUserId(request);
+
+      const suggestions = await searchBookSuggestionsAction.execute(request.query.q, request.query.language);
+
+      return reply.send({ data: suggestions });
+    },
   });
 
   fastify.get('/books', {
