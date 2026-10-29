@@ -21,16 +21,46 @@ import VerifyEmailPage from './pages/VerifyEmailPage.tsx';
 import NotFoundPage from './pages/NotFoundPage.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import ErrorPage from './pages/ErrorPage.tsx';
+import AppShell from './components/AppShell.tsx';
+import { getLastBookId } from './lib/lastBook.ts';
 
 function HomeRoute() {
-  const { userData } = useContext(AuthContext);
-  if (userData?.role === 'admin') return <Navigate to="/admin" replace />;
+  const { userData, userDataInitialized } = useContext(AuthContext);
+  if (!userDataInitialized) return null;
+  if (userData?.role === 'admin')
+    return (
+      <Navigate
+        to="/admin"
+        replace
+      />
+    );
+  if (userData) {
+    const lastBookId = getLastBookId();
+    return (
+      <Navigate
+        to={lastBookId ? `/books/${lastBookId}` : '/books'}
+        replace
+      />
+    );
+  }
   return <HomePage />;
 }
 
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage.tsx'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage.tsx'));
 const MyProfilePage = lazy(() => import('./pages/MyProfilePage.tsx'));
+const BooksPage = lazy(() => import('./pages/BooksPage.tsx'));
+const BookPage = lazy(() => import('./pages/BookPage.tsx'));
+const ReviewPage = lazy(() => import('./pages/ReviewPage.tsx'));
+const BoardPage = lazy(() => import('./pages/BoardPage.tsx'));
+
+function AppPage({ children }: { children: React.ReactNode }) {
+  return (
+    <ErrorBoundary>
+      <Suspense>{children}</Suspense>
+    </ErrorBoundary>
+  );
+}
 
 const router = createBrowserRouter([
   {
@@ -79,16 +109,53 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/profile',
         element: (
           <PrivateRoute>
-            <ErrorBoundary>
-              <Suspense>
-                <MyProfilePage />
-              </Suspense>
-            </ErrorBoundary>
+            <AppShell />
           </PrivateRoute>
         ),
+        children: [
+          {
+            path: '/books',
+            element: (
+              <AppPage>
+                <BooksPage />
+              </AppPage>
+            ),
+          },
+          {
+            path: '/books/:id',
+            element: (
+              <AppPage>
+                <BookPage />
+              </AppPage>
+            ),
+          },
+          {
+            path: '/books/:bookId/review/:captureId',
+            element: (
+              <AppPage>
+                <ReviewPage />
+              </AppPage>
+            ),
+          },
+          {
+            path: '/board',
+            element: (
+              <AppPage>
+                <BoardPage />
+              </AppPage>
+            ),
+          },
+          {
+            path: '/profile',
+            element: (
+              <AppPage>
+                <MyProfilePage />
+              </AppPage>
+            ),
+          },
+        ],
       },
       {
         path: '/admin',

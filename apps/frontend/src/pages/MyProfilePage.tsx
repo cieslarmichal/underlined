@@ -8,6 +8,9 @@ import { toast } from 'sonner';
 
 import { AuthContext } from '../context/AuthContext';
 import { deleteUser } from '../api/queries/deleteUser';
+import { updateNativeLanguage } from '../api/queries/updateNativeLanguage';
+import { languageNames, nativeLanguages, type NativeLanguage } from '../api/types/language';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { changePassword } from '../api/queries/changePassword';
 import { ApiError } from '../api/ApiError';
 import { Button } from '@/components/ui/Button';
@@ -54,7 +57,7 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 export default function MyProfilePage() {
   useSEO({ title: `My Profile - ${site.name}`, noindex: true });
 
-  const { userData, clearUserData } = useContext(AuthContext);
+  const { userData, clearUserData, refreshUserData } = useContext(AuthContext);
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -88,6 +91,16 @@ export default function MyProfilePage() {
         return;
       }
       toast.error('An error occurred while changing your password');
+    }
+  }
+
+  async function onNativeLanguageChange(value: string) {
+    try {
+      await updateNativeLanguage(value as NativeLanguage);
+      await refreshUserData();
+      toast.success('Native language updated');
+    } catch {
+      toast.error('Could not update your native language');
     }
   }
 
@@ -181,6 +194,42 @@ export default function MyProfilePage() {
                 </div>
 
                 <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">Native language</label>
+                  <Select
+                    value={userData.nativeLanguage}
+                    onValueChange={onNativeLanguageChange}
+                  >
+                    <SelectTrigger className="h-11 w-full text-base">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {nativeLanguages.map((language) => (
+                        <SelectItem
+                          key={language}
+                          value={language}
+                        >
+                          {languageNames[language]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Applies to new photos only. Words you already saved keep their current translations.
+                  </p>
+                </div>
+
+                {typeof userData.capturesToday === 'number' && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-1.5 block">Photos today</label>
+                    <Input
+                      value={`${userData.capturesToday} / ${userData.dailyCaptureLimit}`}
+                      disabled
+                      className="h-11 bg-gray-50 text-gray-500"
+                    />
+                  </div>
+                )}
+
+                <div>
                   <label className="text-sm font-medium text-gray-700 mb-1.5 block">Member since</label>
                   <Input
                     value={memberSince}
@@ -235,7 +284,11 @@ export default function MyProfilePage() {
                               className="absolute inset-y-0 right-0 h-full px-3 text-gray-400 hover:text-gray-600 hover:bg-transparent"
                               tabIndex={-1}
                             >
-                              {showCurrentPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
+                              {showCurrentPassword ? (
+                                <EyeOffIcon className="h-4 w-4" />
+                              ) : (
+                                <EyeIcon className="h-4 w-4" />
+                              )}
                             </Button>
                           </div>
                           <FormMessage />
@@ -347,82 +400,84 @@ export default function MyProfilePage() {
           </TabsContent>
 
           {/* Manage Account Tab */}
-          {userData.role !== 'admin' && <TabsContent value="danger">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <Trash2 className="w-5 h-5 text-red-600" />
+          {userData.role !== 'admin' && (
+            <TabsContent value="danger">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-100 rounded-lg">
+                      <Trash2 className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Delete Account</CardTitle>
+                      <CardDescription>Permanently delete your account and all associated data</CardDescription>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle>Delete Account</CardTitle>
-                    <CardDescription>Permanently delete your account and all associated data</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                    <p className="text-sm font-medium text-red-800 mb-2">Deleting your account will:</p>
-                    <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
-                      <li>Permanently remove all your data</li>
-                      <li>Revoke access to the platform</li>
-                      <li>Cannot be undone</li>
-                    </ul>
-                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                      <p className="text-sm font-medium text-red-800 mb-2">Deleting your account will:</p>
+                      <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+                        <li>Permanently remove all your data</li>
+                        <li>Revoke access to the platform</li>
+                        <li>Cannot be undone</li>
+                      </ul>
+                    </div>
 
-                  <Dialog
-                    open={showDeleteDialog}
-                    onOpenChange={setShowDeleteDialog}
-                  >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        className="w-full h-11"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete my account
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent
-                      className="sm:max-w-lg"
-                      onOpenAutoFocus={(e) => e.preventDefault()}
+                    <Dialog
+                      open={showDeleteDialog}
+                      onOpenChange={setShowDeleteDialog}
                     >
-                      <DialogHeader>
-                        <DialogTitle>Confirm account deletion</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to delete your account? This action is irreversible and will permanently
-                          remove all your data.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 my-2">
-                        <p className="text-sm font-medium text-red-800">This action cannot be undone!</p>
-                        <p className="text-sm text-red-700 mt-1">All your data will be permanently deleted.</p>
-                      </div>
-                      <div className="flex gap-3 pt-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowDeleteDialog(false)}
-                          className="flex-1"
-                          disabled={isDeleting}
-                        >
-                          Cancel
-                        </Button>
+                      <DialogTrigger asChild>
                         <Button
                           variant="destructive"
-                          onClick={onDeleteAccount}
-                          className="flex-1"
-                          disabled={isDeleting}
+                          className="w-full h-11"
                         >
-                          {isDeleting ? 'Deleting...' : 'Delete account'}
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete my account
                         </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>}
+                      </DialogTrigger>
+                      <DialogContent
+                        className="sm:max-w-lg"
+                        onOpenAutoFocus={(e) => e.preventDefault()}
+                      >
+                        <DialogHeader>
+                          <DialogTitle>Confirm account deletion</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to delete your account? This action is irreversible and will
+                            permanently remove all your data.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 my-2">
+                          <p className="text-sm font-medium text-red-800">This action cannot be undone!</p>
+                          <p className="text-sm text-red-700 mt-1">All your data will be permanently deleted.</p>
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowDeleteDialog(false)}
+                            className="flex-1"
+                            disabled={isDeleting}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={onDeleteAccount}
+                            className="flex-1"
+                            disabled={isDeleting}
+                          >
+                            {isDeleting ? 'Deleting...' : 'Delete account'}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>

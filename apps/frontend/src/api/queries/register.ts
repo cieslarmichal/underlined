@@ -1,9 +1,11 @@
 import { apiRequest } from '../apiRequest';
+import { NativeLanguage } from '../types/language';
 import { User } from '../types/user';
 
 type RegisterUserRequest = {
   email: string;
   password: string;
+  nativeLanguage: NativeLanguage;
 };
 
 export const registerUser = async (input: RegisterUserRequest): Promise<User> => {
@@ -13,6 +15,7 @@ export const registerUser = async (input: RegisterUserRequest): Promise<User> =>
       body: {
         email: input.email,
         password: input.password,
+        nativeLanguage: input.nativeLanguage,
       },
     });
   } catch (error) {

@@ -7,9 +7,11 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/Form';
 import { Input } from '@/components/ui/Input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip';
 import { registerUser } from '../api/queries/register';
 import { ApiError } from '../api/ApiError';
+import { languageNames, nativeLanguages } from '../api/types/language';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address').max(64),
@@ -21,6 +23,7 @@ const formSchema = z.object({
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/\d/, 'Password must contain at least one digit')
     .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
+  nativeLanguage: z.enum(['pl', 'en']),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -38,12 +41,17 @@ export default function RegisterForm({ onSuccess }: Props) {
     defaultValues: {
       email: '',
       password: '',
+      nativeLanguage: 'pl',
     },
   });
 
   async function onSubmit(values: FormValues) {
     try {
-      await registerUser({ email: values.email, password: values.password });
+      await registerUser({
+        email: values.email,
+        password: values.password,
+        nativeLanguage: values.nativeLanguage,
+      });
       onSuccess?.();
     } catch (error) {
       if (error instanceof ApiError) {
@@ -148,6 +156,38 @@ export default function RegisterForm({ onSuccess }: Props) {
                   {showPassword ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
                 </Button>
               </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="nativeLanguage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-gray-700 font-medium">Your native language</FormLabel>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-full h-12 rounded-xl text-base">
+                    <SelectValue />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {nativeLanguages.map((language) => (
+                    <SelectItem
+                      key={language}
+                      value={language}
+                    >
+                      {languageNames[language]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">Words from your books are translated into this language.</p>
               <FormMessage />
             </FormItem>
           )}

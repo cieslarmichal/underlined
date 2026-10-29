@@ -6,8 +6,8 @@ import { z } from 'zod';
  */
 export const site = {
   name: 'Underlined',
-  initials: 'FS',
-  description: 'Fullstack starter with backend and frontend ready to go.',
+  initials: 'U',
+  description: 'Photograph the words you underlined in a paper book and get their meaning in context.',
   url: 'https://underlined.com',
   contactEmail: 'contact@underlined.com',
   githubUrl: 'https://github.com/cieslarmichal/underlined',
