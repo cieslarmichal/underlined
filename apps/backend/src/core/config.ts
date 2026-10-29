@@ -70,7 +70,7 @@ const configSchema = Type.Object({
       secret: Type.String({ minLength: 1 }),
       expiresIn: Type.Number({ minimum: 86400 }),
       graceMs: Type.Number({ minimum: 1000, maximum: 10000 }),
-      idempotencyMs: Type.Number({ minimum: 100, maximum: 5000 }),
+      rotationIntervalMs: Type.Number({ minimum: 0 }),
     }),
     accountVerification: Type.Object({
       expiresIn: Type.Number({ minimum: 3600 }),

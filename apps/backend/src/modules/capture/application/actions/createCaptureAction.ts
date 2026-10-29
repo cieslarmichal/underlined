@@ -94,7 +94,7 @@ export class CreateCaptureAction {
 
     const imageKey = `captures/${userId}/${IdService.generateUuid()}.jpg`;
 
-    await this.s3Service.uploadBlob({
+    await this.s3Service.uploadFile({
       bucketName: this.config.aws.bucketName,
       fileName: imageKey,
       data: Readable.from(image.buffer),

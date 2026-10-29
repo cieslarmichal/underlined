@@ -61,7 +61,7 @@ export class RetryCaptureAction {
 
     await assertWithinDailyLimit(this.captureRepository, user);
 
-    const image = await this.s3Service.getBlob(this.config.aws.bucketName, capture.imageKey);
+    const image = await this.s3Service.getFile(this.config.aws.bucketName, capture.imageKey);
 
     const analyzed = await this.analyzeCaptureAction.execute(
       { capture, book, image, imageMimeType: 'image/jpeg' },

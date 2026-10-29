@@ -1,4 +1,5 @@
 import { apiRequest } from '../apiRequest';
+import { clearSessionHint } from '../sessionHint';
 
 export const logoutUser = async (): Promise<void> => {
   try {
@@ -7,5 +8,7 @@ export const logoutUser = async (): Promise<void> => {
     });
   } catch (error) {
     console.warn('Logout request failed, but continuing with local cleanup:', error);
+  } finally {
+    clearSessionHint();
   }
 };

@@ -1,4 +1,5 @@
 import { config } from '../../config';
+import { ApiError } from '../ApiError';
 
 interface RefreshTokenResponse {
   accessToken: string;
@@ -11,7 +12,7 @@ export const refreshToken = async (): Promise<RefreshTokenResponse> => {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to refresh token');
+    throw new ApiError('RefreshTokenError', 'Failed to refresh token', response.status);
   }
 
   const data = await response.json();

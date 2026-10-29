@@ -38,7 +38,7 @@ export class S3Service {
     this.s3Client = s3Client;
   }
 
-  public async uploadBlob(payload: UploadFilePayload): Promise<UploadFileResult> {
+  public async uploadFile(payload: UploadFilePayload): Promise<UploadFileResult> {
     const { bucketName, fileName, data, contentType, attachmentName, isPrivate } = payload;
 
     const putObjectInput: PutObjectCommandInput = {
@@ -63,7 +63,7 @@ export class S3Service {
     return { location: Location as string };
   }
 
-  public async getBlob(bucketName: string, fileName: string): Promise<Buffer> {
+  public async getFile(bucketName: string, fileName: string): Promise<Buffer> {
     const { Body } = await this.s3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: fileName }));
 
     if (!Body) {

@@ -4,27 +4,19 @@ import type { UserSession } from '../types/userSession.ts';
 export interface CreateUserSessionData {
   readonly id?: string;
   readonly userId: string;
-  readonly currentRefreshHash: string;
+  readonly issuedAt: Date;
 }
 
-export interface RotateWithGraceData {
+export interface RotateUserSessionData {
   readonly sessionId: string;
-  readonly newRefreshHash: string;
-  readonly graceMs: number;
-  readonly now?: Date;
-}
-
-export interface AcceptPreviousData {
-  readonly sessionId: string;
-  readonly presentedHash: string;
-  readonly now?: Date;
+  readonly generation: number;
+  readonly rotatedAt: Date;
+  readonly prevUsableUntil: Date;
 }
 
 export interface UserSessionRepository {
   create(data: CreateUserSessionData): Promise<UserSession>;
   findById(sessionId: string, tx?: Transaction): Promise<UserSession | null>;
-  findByCurrentHash(tokenHash: string, tx?: Transaction): Promise<UserSession | null>;
-  rotateWithGrace(data: RotateWithGraceData, tx?: Transaction): Promise<UserSession>;
-  acceptPreviousIfWithinGrace(data: AcceptPreviousData, tx?: Transaction): Promise<boolean>;
+  rotate(data: RotateUserSessionData, tx?: Transaction): Promise<UserSession>;
   revoke(sessionId: string, tx?: Transaction): Promise<void>;
 }

@@ -110,7 +110,7 @@ export class UploadImageAction {
       optimizedFileSize: optimizedImage.size,
     });
 
-    await this.s3Service.uploadBlob({
+    await this.s3Service.uploadFile({
       bucketName,
       fileName: imageId,
       data: optimizedStream,

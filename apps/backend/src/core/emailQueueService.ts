@@ -85,58 +85,62 @@ export class EmailQueueService {
 
     this.loggerService.debug({ message: 'Registering email worker' });
 
-    await this.boss.work(this.emailQueueName, { batchSize: 2 }, async (jobs) => {
-      const startTime = Date.now();
+    await this.boss.work(
+      this.emailQueueName,
+      { batchSize: 1, pollingIntervalSeconds: 1, includeMetadata: true },
+      async (jobs) => {
+        const startTime = Date.now();
 
-      for (const job of jobs) {
-        const { recipient, templateName, payload } = job.data as QueueEmailPayload;
-        const attemptNumber = (job as { retrycount?: number }).retrycount ?? 0;
+        for (const job of jobs) {
+          const { recipient, templateName, payload } = job.data as QueueEmailPayload;
+          const attemptNumber = job.retryCount + 1;
 
-        this.loggerService.debug({
-          message: 'Processing email job',
-          jobId: job.id,
-          recipient,
-          templateName,
-          attempt: attemptNumber + 1,
-        });
-
-        try {
-          await this.emailService.sendEmail({
-            toEmail: recipient,
-            template: {
-              name: templateName,
-              data: payload,
-            } as never,
-          });
-
-          const duration = Date.now() - startTime;
-
-          this.loggerService.info({
-            message: 'Email sent successfully',
+          this.loggerService.debug({
+            message: 'Processing email job',
             jobId: job.id,
             recipient,
             templateName,
-            attempt: attemptNumber + 1,
-            durationMs: duration,
-          });
-        } catch (error: unknown) {
-          const duration = Date.now() - startTime;
-
-          this.loggerService.error({
-            message: 'Failed to send email',
-            jobId: job.id,
-            recipient,
-            templateName,
-            attempt: attemptNumber + 1,
-            durationMs: duration,
-            willRetry: attemptNumber < 4,
-            err: error,
+            attemptNumber,
           });
 
-          throw error;
+          try {
+            await this.emailService.sendEmail({
+              toEmail: recipient,
+              template: {
+                name: templateName,
+                data: payload,
+              } as never,
+            });
+
+            const duration = Date.now() - startTime;
+
+            this.loggerService.info({
+              message: 'Email sent successfully',
+              jobId: job.id,
+              recipient,
+              templateName,
+              attemptNumber,
+              durationMs: duration,
+            });
+          } catch (error: unknown) {
+            const duration = Date.now() - startTime;
+
+            this.loggerService.error({
+              message: 'Failed to send email',
+              jobId: job.id,
+              recipient,
+              templateName,
+              attemptNumber,
+              durationMs: duration,
+              willRetry: attemptNumber < job.retryLimit,
+              err: error,
+            });
+
+            throw error;
+          }
         }
-      }
-    });
+      },
+    );
 
     this.loggerService.debug({ message: 'Email queue service started' });
   }

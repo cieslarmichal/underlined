@@ -78,7 +78,11 @@ describe('LoginUserAction', () => {
 
       const decodedRefresh = tokenService.verifyRefreshToken(result.refreshToken);
       expect(decodedRefresh.userId).toBe(user.id);
-      expect(decodedRefresh.email).toBe(user.email);
+      expect(decodedRefresh.generation).toBe(0);
+
+      const session = await userSessionRepository.findById(decodedRefresh.sessionId);
+      expect(session?.status).toBe('active');
+      expect(session?.generation).toBe(0);
     });
 
     it('throws UnauthorizedAccessError when user does not exist', async () => {

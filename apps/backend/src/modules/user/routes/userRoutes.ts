@@ -2,7 +2,6 @@ import { Type, type FastifyPluginAsyncTypebox } from '@fastify/type-provider-typ
 
 import { adminAuthorizationMiddleware, createAuthenticationMiddleware } from '../../../common/auth/authMiddleware.ts';
 import type { TokenService } from '../../../common/auth/tokenService.ts';
-import { CryptoService } from '../../../common/crypto/cryptoService.ts';
 import { UnauthorizedAccessError } from '../../../common/errors/unathorizedAccessError.ts';
 import type { LoggerService } from '../../../common/logger/loggerService.ts';
 import type { Config } from '../../../core/config.ts';
@@ -58,14 +57,6 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
   emailQueueService: EmailQueueService;
 }> = async function (fastify, opts) {
   const { config, databaseClient, loggerService, tokenService, emailQueueService } = opts;
-
-  // Idempotency window and single-flight coordination for refresh calls.
-  // Keyed by refresh token hash to avoid storing sensitive data.
-  const inFlightRefreshes = new Map<string, Promise<{ accessToken: string; refreshToken: string }>>();
-  const recentRefreshes = new Map<
-    string,
-    { result: { accessToken: string; refreshToken: string }; timestamp: number }
-  >();
 
   const mapUserToResponse = (user: User): UserDto => {
     return {
@@ -328,42 +319,13 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
         });
       }
 
-      const tokenHash = CryptoService.hashData(refreshToken);
-
-      // Short-circuit for very recent duplicate refresh attempts (e.g., rapid page reloads).
-      const recent = recentRefreshes.get(tokenHash);
-      const now = Date.now();
-      if (recent && now - recent.timestamp <= config.token.refresh.idempotencyMs) {
-        reply.setCookie(refreshTokenCookie.name, recent.result.refreshToken, refreshTokenCookie.config);
-        return reply.send({ accessToken: recent.result.accessToken });
-      }
-
-      // Single-flight per tokenHash to coalesce concurrent duplicate refreshes.
-      let promise = inFlightRefreshes.get(tokenHash);
-      if (!promise) {
-        promise = refreshTokenAction.execute(
-          { refreshToken },
-          {
-            requestId: request.id,
-          },
-        );
-        inFlightRefreshes.set(tokenHash, promise);
-      }
-
-      let result: { accessToken: string; refreshToken: string };
-      try {
-        result = await promise;
-
-        recentRefreshes.set(tokenHash, { result, timestamp: now });
-
-        for (const [key, entry] of recentRefreshes) {
-          if (now - entry.timestamp > config.token.refresh.idempotencyMs) {
-            recentRefreshes.delete(key);
-          }
-        }
-      } finally {
-        inFlightRefreshes.delete(tokenHash);
-      }
+      // Stateless and idempotent: duplicate concurrent requests receive the same refresh token.
+      const result = await refreshTokenAction.execute(
+        { refreshToken },
+        {
+          requestId: request.id,
+        },
+      );
 
       reply.setCookie(refreshTokenCookie.name, result.refreshToken, refreshTokenCookie.config);
       return reply.send({ accessToken: result.accessToken });

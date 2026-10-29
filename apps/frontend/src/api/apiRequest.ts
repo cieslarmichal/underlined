@@ -1,6 +1,7 @@
 import { config } from '../config';
 import { ApiError } from './ApiError.ts';
 import { refreshToken } from './queries/refreshToken';
+import { clearSessionHint, hasSessionHint, setSessionHint } from './sessionHint';
 
 interface ErrorResponse {
   name?: string;
@@ -41,7 +42,23 @@ export const requestAccessTokenRefresh = async (): Promise<{ accessToken: string
   }
 
   refreshPromise = (async () => {
-    const res = await refreshToken();
+    if (!hasSessionHint()) {
+      throw new ApiError('UnauthorizedAccessError', 'No active session', 401);
+    }
+
+    let res: { accessToken: string };
+
+    try {
+      res = await refreshToken();
+    } catch (error) {
+      // Only forget the session when the backend rejected it, not on network failures.
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+        clearSessionHint();
+      }
+      throw error;
+    }
+
+    setSessionHint();
     // Update the module-level token immediately
     currentAccessToken = res.accessToken;
     // Also notify the callback for React state updates
@@ -151,6 +168,7 @@ export const apiRequest = async <T>(endpoint: string, options: ApiRequestConfig)
   const responseData = await response.json();
 
   if (endpoint === '/users/login' && response.ok) {
+    setSessionHint();
     // Update the module-level token immediately
     currentAccessToken = responseData.accessToken;
     // Also notify the callback for React state updates

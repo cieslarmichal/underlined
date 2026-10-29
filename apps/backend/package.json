@@ -10,8 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.3.0",

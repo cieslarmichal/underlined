@@ -1,5 +1,4 @@
 import type { TokenService } from '../../../../common/auth/tokenService.ts';
-import { CryptoService } from '../../../../common/crypto/cryptoService.ts';
 import { UnauthorizedAccessError } from '../../../../common/errors/unathorizedAccessError.ts';
 import { IdService } from '../../../../common/id/idService.ts';
 import type { LoggerService } from '../../../../common/logger/loggerService.ts';
@@ -81,14 +80,12 @@ export class LoginUserAction {
     }
 
     const sessionId = IdService.generateUuid();
-    const accessPayload = { userId: user.id, email: user.email, role: user.role };
-    const refreshPayload = { userId: user.id, email: user.email, role: user.role, sessionId };
+    const issuedAt = new Date();
 
-    const accessToken = this.tokenService.generateAccessToken(accessPayload);
-    const refreshToken = this.tokenService.generateRefreshToken(refreshPayload);
+    await this.userSessionRepository.create({ id: sessionId, userId: user.id, issuedAt });
 
-    const tokenHash = CryptoService.hashData(refreshToken);
-    await this.userSessionRepository.create({ id: sessionId, userId: user.id, currentRefreshHash: tokenHash });
+    const accessToken = this.tokenService.generateAccessToken({ userId: user.id, email: user.email, role: user.role });
+    const refreshToken = this.tokenService.generateRefreshToken({ userId: user.id, sessionId, generation: 0 }, issuedAt);
 
     this.loggerService.info({
       message: 'User logged in successfully',

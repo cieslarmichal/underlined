@@ -9,6 +9,10 @@ import {
   setTokenRefreshCallback,
   setAccessToken as setApiAccessToken,
 } from '../api/apiRequest';
+import { getTokenExpiryMs } from '../api/tokenExpiry';
+
+const REFRESH_MARGIN_MS = 60 * 1000;
+const FALLBACK_TOKEN_LIFETIME_MS = 10 * 60 * 1000;
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [userData, setUserData] = useState<User | null>(null);
@@ -37,32 +41,40 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     setIsRefreshingUserData(false);
   }, []);
 
-  // Silent refresh - refresh token every 10 minutes to prevent expiration
+  // Silent refresh - shortly before the access token expires, but only while the tab is visible.
+  // Hidden tabs catch up on visibilitychange; any request made meanwhile refreshes on 401 anyway.
   useEffect(() => {
-    let refreshInterval: ReturnType<typeof setInterval> | null = null;
-
-    if (accessToken) {
-      refreshInterval = setInterval(
-        async () => {
-          try {
-            const tokenResponse = await requestAccessTokenRefresh();
-            setAccessToken(tokenResponse.accessToken);
-          } catch {
-            // If silent refresh fails, clear the auth state to force re-login
-            setAccessToken(null);
-            setUserData(null);
-            setUserDataInitialized(true);
-            setIsRefreshingUserData(false);
-          }
-        },
-        10 * 60 * 1000,
-      );
+    if (!accessToken) {
+      return;
     }
 
-    return () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
+    const refreshAt = (getTokenExpiryMs(accessToken) ?? Date.now() + FALLBACK_TOKEN_LIFETIME_MS) - REFRESH_MARGIN_MS;
+
+    const silentRefresh = async () => {
+      try {
+        const tokenResponse = await requestAccessTokenRefresh();
+        setAccessToken(tokenResponse.accessToken);
+      } catch {
+        // If silent refresh fails, clear the auth state to force re-login
+        setAccessToken(null);
+        setUserData(null);
+        setUserDataInitialized(true);
+        setIsRefreshingUserData(false);
       }
+    };
+
+    const refreshIfDue = () => {
+      if (document.visibilityState === 'visible' && Date.now() >= refreshAt) {
+        void silentRefresh();
+      }
+    };
+
+    const refreshTimeout = setTimeout(refreshIfDue, Math.max(refreshAt - Date.now(), 0));
+    document.addEventListener('visibilitychange', refreshIfDue);
+
+    return () => {
+      clearTimeout(refreshTimeout);
+      document.removeEventListener('visibilitychange', refreshIfDue);
     };
   }, [accessToken]);
 

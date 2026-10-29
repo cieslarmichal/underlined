@@ -18,8 +18,18 @@ export class TokenService {
     return this.generateToken(payload, 'access');
   }
 
-  public generateRefreshToken(payload: RefreshTokenPayload): string {
-    return this.generateToken(payload, 'refresh');
+  // Deterministic for a given session generation and issue time, so a duplicate refresh request
+  // can be answered with exactly the same token without keeping any state in memory.
+  public generateRefreshToken(payload: RefreshTokenPayload, issuedAt: Date): string {
+    return this.generateToken(
+      {
+        userId: payload.userId,
+        sessionId: payload.sessionId,
+        generation: payload.generation,
+        iat: Math.floor(issuedAt.getTime() / 1000),
+      },
+      'refresh',
+    );
   }
 
   public verifyAccessToken(token: string): TokenPayload {
@@ -27,7 +37,13 @@ export class TokenService {
   }
 
   public verifyRefreshToken(token: string): RefreshTokenPayload {
-    return this.verifyToken(token, 'refresh');
+    const payload = this.verifyToken(token, 'refresh');
+
+    if (typeof payload.sessionId !== 'string' || typeof payload.generation !== 'number') {
+      throw new UnauthorizedAccessError({ reason: 'Invalid refresh token payload' });
+    }
+
+    return payload;
   }
 
   private generateToken(payload: TokenPayload | RefreshTokenPayload, tokenType: TokenType): string {
