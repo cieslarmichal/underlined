@@ -15,6 +15,8 @@ interface Props {
 export default function WordCard({ word, onEdit, onDelete }: Props) {
   const [expanded, setExpanded] = useState(false);
   const meanings = [...new Set(word.occurrences.map((occurrence) => occurrence.translation))];
+  // With a single meaning the sentences would only repeat the header, so show it per sentence only when it differs.
+  const showMeaningPerSentence = meanings.length > 1;
 
   return (
     <article className="rounded-xl border bg-card p-4">
@@ -73,7 +75,9 @@ export default function WordCard({ word, onEdit, onDelete }: Props) {
                   word={occurrence.surfaceForm}
                 />
               </p>
-              <p className="mt-0.5 text-sm text-muted-foreground">{occurrence.translation}</p>
+              {showMeaningPerSentence && (
+                <p className="mt-0.5 text-sm text-muted-foreground">{occurrence.translation}</p>
+              )}
               <p className="text-xs text-muted-foreground">{occurrence.bookTitle}</p>
             </li>
           ))}
