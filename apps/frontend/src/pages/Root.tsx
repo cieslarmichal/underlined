@@ -11,7 +11,7 @@ export default function Root() {
   const { userData } = useContext(AuthContext);
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-x-hidden">
+    <div className="flex min-h-dvh flex-col overflow-x-clip">
       <Header />
       {userData && <InstallHint />}
       <main className="w-full flex-1">

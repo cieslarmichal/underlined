@@ -110,14 +110,14 @@ export default function BookPage() {
   const pendingCaptures = pending.data ?? [];
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-72px)] max-w-2xl flex-col px-4 py-6">
+    <div className="mx-auto flex min-h-[calc(100dvh-65px-3.5rem-env(safe-area-inset-bottom))] max-w-2xl flex-col px-4 py-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="min-w-0">
           {book.loading ? (
             <Skeleton className="h-8 w-48" />
           ) : (
             <>
-              <h1 className="truncate text-2xl font-bold">{book.data?.title}</h1>
+              <h1 className="line-clamp-2 text-2xl font-bold">{book.data?.title}</h1>
               {book.data?.author && <p className="text-sm text-muted-foreground">{book.data.author}</p>}
             </>
           )}
@@ -212,7 +212,7 @@ export default function BookPage() {
         </ul>
       </div>
 
-      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] mt-6 flex flex-col items-center gap-2 bg-gradient-to-t from-background via-background to-transparent pb-2 pt-4">
+      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] mt-6 flex flex-col items-center gap-2 bg-gradient-to-t from-background via-background to-transparent pb-2 pt-4">
         <Button
           size="lg"
           className="h-16 w-full max-w-sm rounded-2xl text-lg"

@@ -6,7 +6,7 @@ import { getLastBookId } from '../lib/lastBook';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'flex flex-1 flex-col items-center justify-center gap-0.5 min-h-[44px] py-2 text-xs font-medium transition-colors',
+    'flex flex-1 flex-col items-center justify-center gap-0.5 min-h-14 py-2 text-xs font-medium transition-colors',
     isActive ? 'text-foreground' : 'text-muted-foreground',
   );
 
@@ -18,7 +18,7 @@ export default function AppShell() {
 
   return (
     <>
-      <div className="pb-[calc(4rem+env(safe-area-inset-bottom))]">
+      <div className="pb-[calc(3.5rem+env(safe-area-inset-bottom))]">
         <Outlet />
       </div>
       <nav

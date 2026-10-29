@@ -123,12 +123,12 @@ export default function ReviewPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-72px)] max-w-2xl flex-col px-4 py-6">
+    <div className="mx-auto flex min-h-[calc(100dvh-65px-3.5rem-env(safe-area-inset-bottom))] max-w-2xl flex-col px-4 py-6">
       <h1 className="mb-4 text-2xl font-bold">
         {capture.items.length} {capture.items.length === 1 ? 'word' : 'words'} found
       </h1>
 
-      <ul className="flex-1 divide-y rounded-xl border bg-card">
+      <ul className="divide-y rounded-xl border bg-card">
         {capture.items.map((item) => (
           <li
             key={item.lemma}
@@ -144,7 +144,9 @@ export default function ReviewPage() {
         ))}
       </ul>
 
-      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] mt-6 flex flex-col gap-2 bg-background pb-2 pt-3">
+      <div className="flex-1" />
+
+      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] mt-6 flex flex-col gap-2 bg-background pb-2 pt-3">
         <Button
           className="h-14 w-full text-base"
           onClick={accept}
