@@ -8,6 +8,8 @@ import type { LoggerService } from '../../../common/logger/loggerService.ts';
 import type { Config } from '../../../core/config.ts';
 import type { EmailQueueService } from '../../../core/emailQueueService.ts';
 import type { DatabaseClient } from '../../../infrastructure/database/databaseClient.ts';
+import { startOfUtcDay } from '../../capture/application/actions/checkCaptureLimit.ts';
+import { CaptureRepositoryImpl } from '../../capture/infrastructure/repositories/captureRepositoryImpl.ts';
 import { ChangePasswordAction } from '../application/actions/changePasswordAction.ts';
 import { ChangePasswordByTokenAction } from '../application/actions/changePasswordByTokenAction.ts';
 import { CreateUserAction } from '../application/actions/createUserAction.ts';
@@ -18,8 +20,8 @@ import { LoginUserAction } from '../application/actions/loginUserAction.ts';
 import { LogoutUserAction } from '../application/actions/logoutUserAction.ts';
 import { RefreshTokenAction } from '../application/actions/refreshTokenAction.ts';
 import { ResendVerificationEmailAction } from '../application/actions/resendVerificationEmailAction.ts';
-import { UpdateNativeLanguageAction } from '../application/actions/updateNativeLanguageAction.ts';
 import { SendResetPasswordEmailAction } from '../application/actions/sendResetPasswordEmailAction.ts';
+import { UpdateNativeLanguageAction } from '../application/actions/updateNativeLanguageAction.ts';
 import { ValidateOneTimeTokenAction } from '../application/actions/validateOneTimeTokenAction.ts';
 import { VerifyUserEmailAction } from '../application/actions/verifyUserEmailAction.ts';
 import { PasswordService } from '../application/services/passwordService.ts';
@@ -35,6 +37,7 @@ import {
   loginRequestSchema,
   loginResponseSchema,
   refreshTokenResponseSchema,
+  profileSchema,
   registerRequestSchema,
   updateProfileRequestSchema,
   resendVerificationRequestSchema,
@@ -169,6 +172,7 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     oneTimeTokenRepository,
   );
 
+  const captureRepository = new CaptureRepositoryImpl(databaseClient);
   const updateNativeLanguageAction = new UpdateNativeLanguageAction(userRepository);
 
   const authenticationMiddleware = createAuthenticationMiddleware(tokenService, userRepository);
@@ -202,7 +206,7 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
   fastify.get('/users/me', {
     schema: {
       response: {
-        200: userSchema,
+        200: profileSchema,
       },
     },
     config: {
@@ -219,8 +223,9 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
       const { userId } = request.user;
 
       const user = await findUserAction.execute(userId);
+      const capturesToday = await captureRepository.countSince(userId, startOfUtcDay());
 
-      return reply.send(mapUserToResponse(user));
+      return reply.send({ ...mapUserToResponse(user), capturesToday });
     },
   });
 

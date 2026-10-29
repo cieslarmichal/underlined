@@ -77,6 +77,10 @@
     "uploadImage": {
       "max": 20,
       "timeWindow": 60000
+    },
+    "capture": {
+      "max": 10,
+      "timeWindow": 60000
     }
   },
   "token": {
@@ -99,5 +103,10 @@
     "maxFileSizeBytes": 3145728,
     "allowedContentTypes": ["image/jpeg", "image/jpg", "image/png", "image/webp"]
   },
-  "emailQueueName": "send-email"
+  "emailQueueName": "send-email",
+  "anthropic": {
+    "model": "claude-sonnet-5-5",
+    "maxTokens": 4096,
+    "timeoutMs": 60000
+  }
 }

@@ -1,4 +1,11 @@
-import { HeadObjectCommand, ListObjectsV2Command, type PutObjectCommandInput, type S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
+  type PutObjectCommandInput,
+  type S3Client,
+} from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { type Readable } from 'node:stream';
 
@@ -8,6 +15,7 @@ export interface UploadFilePayload {
   readonly data: Readable;
   readonly contentType: string;
   readonly attachmentName?: string;
+  readonly isPrivate?: boolean;
 }
 
 export interface UploadFileResult {
@@ -31,14 +39,14 @@ export class S3Service {
   }
 
   public async uploadBlob(payload: UploadFilePayload): Promise<UploadFileResult> {
-    const { bucketName, fileName, data, contentType, attachmentName } = payload;
+    const { bucketName, fileName, data, contentType, attachmentName, isPrivate } = payload;
 
     const putObjectInput: PutObjectCommandInput = {
       Bucket: bucketName,
       Key: fileName,
       Body: data,
       ContentType: contentType,
-      ACL: 'public-read',
+      ...(!isPrivate && { ACL: 'public-read' as const }),
     };
 
     if (attachmentName) {
@@ -53,6 +61,29 @@ export class S3Service {
     const { Location } = await upload.done();
 
     return { location: Location as string };
+  }
+
+  public async getBlob(bucketName: string, fileName: string): Promise<Buffer> {
+    const { Body } = await this.s3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: fileName }));
+
+    if (!Body) {
+      throw new Error(`S3 object ${fileName} has no body`);
+    }
+
+    return Buffer.from(await Body.transformToByteArray());
+  }
+
+  public async deleteBlobs(bucketName: string, fileNames: string[]): Promise<void> {
+    if (fileNames.length === 0) {
+      return;
+    }
+
+    await this.s3Client.send(
+      new DeleteObjectsCommand({
+        Bucket: bucketName,
+        Delete: { Objects: fileNames.map((fileName) => ({ Key: fileName })) },
+      }),
+    );
   }
 
   public async getFiles(payload: GetFilesPayload): Promise<GetFilesResult> {

@@ -34,6 +34,12 @@ const configSchema = Type.Object({
       keepAliveInitialDelayMillis: Type.Number({ minimum: 0, maximum: 30000 }),
     }),
   }),
+  anthropic: Type.Object({
+    apiKey: Type.String({ minLength: 1 }),
+    model: Type.String({ minLength: 1 }),
+    maxTokens: Type.Number({ minimum: 256 }),
+    timeoutMs: Type.Number({ minimum: 1000 }),
+  }),
   cookie: Type.Object({
     secret: Type.String({ minLength: 1 }),
     refreshToken: Type.Object({
@@ -111,6 +117,10 @@ const configSchema = Type.Object({
       timeWindow: Type.Number({ minimum: 1000 }),
     }),
     uploadImage: Type.Object({
+      max: Type.Number({ minimum: 1 }),
+      timeWindow: Type.Number({ minimum: 1000 }),
+    }),
+    capture: Type.Object({
       max: Type.Number({ minimum: 1 }),
       timeWindow: Type.Number({ minimum: 1000 }),
     }),

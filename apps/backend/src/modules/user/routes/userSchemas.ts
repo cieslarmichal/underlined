@@ -15,6 +15,11 @@ export const userSchema = Type.Object({
   createdAt: Type.String({ format: 'date-time' }),
 });
 
+export const profileSchema = Type.Object({
+  ...userSchema.properties,
+  capturesToday: Type.Number(),
+});
+
 export const adminUserSchema = Type.Object({
   id: Type.String({ format: 'uuid' }),
   email: Type.String({ minLength: 1, maxLength: 255, format: 'email' }),

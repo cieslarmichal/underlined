@@ -35,6 +35,10 @@
     "uploadImage": {
       "max": 10,
       "timeWindow": 60000
+    },
+    "capture": {
+      "max": 5,
+      "timeWindow": 60000
     }
   },
   "logLevel": "info",

@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { v7 as uuidv7 } from 'uuid';
 
-import type { NativeLanguage } from '../src/common/types/language.ts';
 import type { ExecutionContext } from '../src/common/types/executionContext.ts';
+import type { NativeLanguage } from '../src/common/types/language.ts';
 import type { CreateUserData } from '../src/modules/user/domain/repositories/userRepository.ts';
 
 export class Generator {

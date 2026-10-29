@@ -40,6 +40,10 @@
     "uploadImage": {
       "max": 1000,
       "timeWindow": 60000
+    },
+    "capture": {
+      "max": 1000,
+      "timeWindow": 60000
     }
   },
   "database": {
@@ -59,5 +63,8 @@
     "refresh": {
       "secret": "12321313423565365654546654121890008b"
     }
+  },
+  "anthropic": {
+    "apiKey": "dummy-anthropic-key"
   }
 }

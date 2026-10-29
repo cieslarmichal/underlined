@@ -20,5 +20,8 @@
     "refresh": {
       "secret": "REFRESH_TOKEN_SECRET"
     }
+  },
+  "anthropic": {
+    "apiKey": "ANTHROPIC_API_KEY"
   }
 }

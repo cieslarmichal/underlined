@@ -128,7 +128,7 @@ export const wordOccurrences = pgTable(
       .references(() => words.id, { onDelete: 'cascade' }),
     bookId: uuid('book_id')
       .notNull()
-      .references(() => books.id, { onDelete: 'restrict' }),
+      .references(() => books.id, { onDelete: 'cascade' }),
     captureId: uuid('capture_id')
       .notNull()
       .references(() => captures.id, { onDelete: 'cascade' }),

@@ -3,8 +3,8 @@ import type { EmailTemplate } from '../../../../common/emailService/emailTemplat
 import { ResourceAlreadyExistsError } from '../../../../common/errors/resourceAlreadyExistsError.ts';
 import { IdService } from '../../../../common/id/idService.ts';
 import type { LoggerService } from '../../../../common/logger/loggerService.ts';
-import type { NativeLanguage } from '../../../../common/types/language.ts';
 import type { ExecutionContext } from '../../../../common/types/executionContext.ts';
+import type { NativeLanguage } from '../../../../common/types/language.ts';
 import type { Config } from '../../../../core/config.ts';
 import type { EmailQueueService } from '../../../../core/emailQueueService.ts';
 import type { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';

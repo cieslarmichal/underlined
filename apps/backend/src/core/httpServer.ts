@@ -6,6 +6,8 @@ import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { fastify, type FastifyInstance, type FastifyRequest } from 'fastify';
 import type { FastifySchemaValidationError } from 'fastify/types/schema.js';
 
+import { AnthropicPageAnalysisService } from '../common/ai/anthropicPageAnalysisService.ts';
+import type { PageAnalysisService } from '../common/ai/pageAnalysisService.ts';
 import { TokenService } from '../common/auth/tokenService.ts';
 import { AccountDisabledError } from '../common/errors/accountDisabledError.ts';
 import { ExternalServiceError } from '../common/errors/externalServiceError.ts';
@@ -13,6 +15,7 @@ import { ForbiddenAccessError } from '../common/errors/forbiddenAccessError.ts';
 import { InputNotValidError } from '../common/errors/inputNotValidError.ts';
 import { OperationNotValidError } from '../common/errors/operationNotValidError.ts';
 import { ResourceAlreadyExistsError } from '../common/errors/resourceAlreadyExistsError.ts';
+import { ResourceConflictError } from '../common/errors/resourceConflictError.ts';
 import { ResourceNotFoundError } from '../common/errors/resourceNotFoundError.ts';
 import { UnauthorizedAccessError } from '../common/errors/unathorizedAccessError.ts';
 import { IdService } from '../common/id/idService.ts';
@@ -21,8 +24,11 @@ import { type LoggerService } from '../common/logger/loggerService.ts';
 import { S3ClientFactory, type S3Config } from '../common/s3/s3ClientFactory.ts';
 import { S3Service } from '../common/s3/s3Service.ts';
 import type { DatabaseClient } from '../infrastructure/database/databaseClient.ts';
+import { bookRoutes } from '../modules/book/routes/bookRoutes.ts';
+import { captureRoutes } from '../modules/capture/routes/captureRoutes.ts';
 import { imageRoutes } from '../modules/image/imageRoutes.ts';
 import { userRoutes } from '../modules/user/routes/userRoutes.ts';
+import { wordRoutes } from '../modules/word/routes/wordRoutes.ts';
 
 import { type Config } from './config.ts';
 import type { EmailQueueService } from './emailQueueService.ts';
@@ -35,17 +41,20 @@ export class HttpServer {
   private readonly config: Config;
   private readonly databaseClient: DatabaseClient;
   private readonly emailQueueService: EmailQueueService;
+  private readonly pageAnalysisService: PageAnalysisService;
 
   public constructor(
     config: Config,
     loggerService: LoggerService,
     databaseClient: DatabaseClient,
     emailQueueService: EmailQueueService,
+    pageAnalysisService?: PageAnalysisService,
   ) {
     this.config = config;
     this.loggerService = loggerService;
     this.databaseClient = databaseClient;
     this.emailQueueService = emailQueueService;
+    this.pageAnalysisService = pageAnalysisService ?? new AnthropicPageAnalysisService(config.anthropic);
 
     this.fastifyServer = fastify({
       bodyLimit: maxBodySize,
@@ -259,6 +268,16 @@ export class HttpServer {
         return reply.status(404).send(error.toJSON());
       }
 
+      if (error instanceof ResourceConflictError) {
+        this.loggerService.info({
+          message: 'Resource state conflict',
+          ...baseContext,
+          errorContext: error.context,
+        });
+
+        return reply.status(409).send(error.toJSON());
+      }
+
       if (error instanceof ResourceAlreadyExistsError) {
         this.loggerService.warn({
           message: 'Resource conflict',
@@ -312,6 +331,30 @@ export class HttpServer {
       config: this.config,
       tokenService,
       imageOptimizationService,
+    });
+
+    await this.fastifyServer.register(bookRoutes, {
+      databaseClient: this.databaseClient,
+      s3Service,
+      loggerService: this.loggerService,
+      config: this.config,
+      tokenService,
+    });
+
+    await this.fastifyServer.register(wordRoutes, {
+      databaseClient: this.databaseClient,
+      config: this.config,
+      tokenService,
+    });
+
+    await this.fastifyServer.register(captureRoutes, {
+      databaseClient: this.databaseClient,
+      s3Service,
+      loggerService: this.loggerService,
+      config: this.config,
+      tokenService,
+      imageOptimizationService,
+      pageAnalysisService: this.pageAnalysisService,
     });
 
     await this.fastifyServer.register(userRoutes, {

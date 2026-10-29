@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 
+import type { PageAnalysisService } from '../../src/common/ai/pageAnalysisService.ts';
 import { LoggerServiceFactory } from '../../src/common/logger/loggerServiceFactory.ts';
 import { createConfig } from '../../src/core/config.ts';
 import type { EmailQueueService } from '../../src/core/emailQueueService.ts';
@@ -9,7 +10,9 @@ import { DatabaseClient } from '../../src/infrastructure/database/databaseClient
 let testServer: HttpServer | undefined;
 let testDatabase: DatabaseClient | undefined;
 
-export async function createTestContext(): Promise<{ server: FastifyInstance; databaseClient: DatabaseClient }> {
+export async function createTestContext(
+  pageAnalysisService?: PageAnalysisService,
+): Promise<{ server: FastifyInstance; databaseClient: DatabaseClient }> {
   const config = createConfig();
   const loggerService = LoggerServiceFactory.create({ logLevel: 'silent' });
 
@@ -22,7 +25,7 @@ export async function createTestContext(): Promise<{ server: FastifyInstance; da
     stop: async (): Promise<void> => {},
   } as unknown as EmailQueueService;
 
-  testServer = new HttpServer(config, loggerService, testDatabase, mockEmailQueueService);
+  testServer = new HttpServer(config, loggerService, testDatabase, mockEmailQueueService, pageAnalysisService);
   await testServer.start();
 
   return {
