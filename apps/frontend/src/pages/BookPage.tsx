@@ -132,12 +132,15 @@ export default function BookPage() {
                 <MoreVertical className="size-5" />
               </MenubarTrigger>
               <MenubarContent align="end">
-                <MenubarItem onClick={() => setEditBookOpen(true)}>
+                <MenubarItem
+                  onClick={() => setEditBookOpen(true)}
+                  className="min-h-11 cursor-pointer gap-3 px-3 py-2"
+                >
                   <Pencil className="size-4" /> Edit book
                 </MenubarItem>
                 <MenubarItem
                   onClick={() => setDeleteBookOpen(true)}
-                  className="text-destructive focus:text-destructive"
+                  className="min-h-11 cursor-pointer gap-3 px-3 py-2 text-destructive focus:text-destructive"
                 >
                   <Trash2 className="size-4" /> Delete book
                 </MenubarItem>
