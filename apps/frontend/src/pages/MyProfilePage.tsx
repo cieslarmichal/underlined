@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { AuthContext } from '../context/AuthContext';
 import { deleteUser } from '../api/queries/deleteUser';
 import { updateNativeLanguage } from '../api/queries/updateNativeLanguage';
+import { isRememberCardEnabled, setRememberCardEnabled } from '../lib/preferences';
+import { Switch } from '@/components/ui/Switch';
 import { languageNames, nativeLanguages, type NativeLanguage } from '../api/types/language';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { changePassword } from '../api/queries/changePassword';
@@ -59,6 +61,7 @@ export default function MyProfilePage() {
 
   const { userData, clearUserData, refreshUserData } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [rememberCard, setRememberCard] = useState(isRememberCardEnabled);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -216,6 +219,29 @@ export default function MyProfilePage() {
                   <p className="text-xs text-gray-400 mt-1">
                     Applies to new photos only. Words you already saved keep their current translations.
                   </p>
+                </div>
+
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <label
+                      htmlFor="remember-card-switch"
+                      className="text-sm font-medium text-gray-700 mb-1 block"
+                    >
+                      Suggest a word to remember
+                    </label>
+                    <p className="text-xs text-gray-400">
+                      Shows one saved word from your book on the Reading screen. Never a quiz, and nothing is ever
+                      overdue. Saved on this device.
+                    </p>
+                  </div>
+                  <Switch
+                    id="remember-card-switch"
+                    checked={rememberCard}
+                    onCheckedChange={(checked) => {
+                      setRememberCard(checked);
+                      setRememberCardEnabled(checked);
+                    }}
+                  />
                 </div>
 
                 {typeof userData.capturesToday === 'number' && (

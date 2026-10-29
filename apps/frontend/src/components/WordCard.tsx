@@ -9,10 +9,11 @@ interface Props {
   word: Word;
   onEdit: () => void;
   onDelete: () => void;
+  onToggleKnown: () => void;
 }
 
 // Word card: the dictionary entry with all distinct meanings; sentences stay collapsed until the reader asks.
-export default function WordCard({ word, onEdit, onDelete }: Props) {
+export default function WordCard({ word, onEdit, onDelete, onToggleKnown }: Props) {
   const [expanded, setExpanded] = useState(false);
   const meanings = [...new Set(word.occurrences.map((occurrence) => occurrence.translation))];
   // With a single meaning the sentences would only repeat the header, so show it per sentence only when it differs.
@@ -24,6 +25,11 @@ export default function WordCard({ word, onEdit, onDelete }: Props) {
         <div className="min-w-0 flex-1">
           <h2 className="font-semibold">
             {word.lemma}
+            {word.known && (
+              <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                known
+              </span>
+            )}
             {word.encounters > 1 && (
               <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
                 met {word.encounters}×
@@ -52,15 +58,24 @@ export default function WordCard({ word, onEdit, onDelete }: Props) {
         </Button>
       </div>
 
-      <button
-        type="button"
-        className="mt-2 flex min-h-[44px] items-center gap-1 text-sm font-medium text-muted-foreground"
-        aria-expanded={expanded}
-        onClick={() => setExpanded(!expanded)}
-      >
-        Show sentences ({word.occurrences.length})
-        <ChevronDown className={`size-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-      </button>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          className="flex min-h-[44px] items-center gap-1 text-sm font-medium text-muted-foreground"
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        >
+          Show sentences ({word.occurrences.length})
+          <ChevronDown className={`size-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </button>
+        <button
+          type="button"
+          className="min-h-[44px] text-sm text-muted-foreground underline-offset-4 hover:underline"
+          onClick={onToggleKnown}
+        >
+          {word.known ? 'Move back to learning' : 'I know this word'}
+        </button>
+      </div>
 
       {expanded && (
         <ul className="mt-1 space-y-3">

@@ -106,6 +106,11 @@ export const words = pgTable(
     lemmaKey: varchar('lemma_key', { length: 255 }).notNull(),
     sourceLanguage: varchar('source_language', { length: 2 }).notNull(),
     targetLanguage: varchar('target_language', { length: 2 }).notNull(),
+    // The reader marked the word as known: it stops resurfacing, but stays in the dictionary.
+    knownAt: timestamp('known_at'),
+    // Last time the word was shown as a "remember?" card and how the reader answered.
+    lastShownAt: timestamp('last_shown_at'),
+    lastOutcome: varchar('last_outcome', { length: 12 }),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [

@@ -1,4 +1,4 @@
-import { Camera, Image as ImageIcon, Loader2, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Camera, Check, Image as ImageIcon, Loader2, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -21,6 +21,7 @@ import { deleteWordFromBook, getWords } from '../api/queries/words';
 import type { Word } from '../api/types/word';
 import BookFormDialog from '../components/BookFormDialog';
 import EditOccurrencesDialog from '../components/EditOccurrencesDialog';
+import RememberCard from '../components/RememberCard';
 import { site } from '../config';
 import { useAsyncData } from '../hooks/useAsyncData';
 import { useSEO } from '../hooks/useSEO';
@@ -39,7 +40,7 @@ export default function BookPage() {
   const galleryInput = useRef<HTMLInputElement>(null);
 
   const book = useAsyncData(() => getBook(id), [id]);
-  const words = useAsyncData(() => getWords({ bookId: id }), [id]);
+  const words = useAsyncData(() => getWords({ bookId: id, status: 'all' }), [id]);
   const pending = useAsyncData(() => getPendingCaptures(id), [id]);
 
   const [uploading, setUploading] = useState(false);
@@ -108,6 +109,7 @@ export default function BookPage() {
   }
 
   const pendingCaptures = pending.data ?? [];
+  const keepMeeting = words.data?.filter((word) => word.encounters > 1 && !word.known).length ?? 0;
 
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-65px-3.5rem-env(safe-area-inset-bottom))] max-w-2xl flex-col px-4 py-6">
@@ -160,6 +162,31 @@ export default function BookPage() {
         </Link>
       )}
 
+      {(words.data?.length ?? 0) > 0 && (
+        <>
+          <RememberCard
+            bookId={id}
+            onKnown={() => void words.reload()}
+          />
+          <div className="mb-4 flex flex-wrap gap-x-4 text-sm">
+            <Link
+              to={`/books/${id}/browse`}
+              className="flex min-h-11 items-center text-muted-foreground underline-offset-4 hover:underline"
+            >
+              Flip through your words
+            </Link>
+            {keepMeeting > 0 && (
+              <Link
+                to={`/words?bookId=${id}&view=met`}
+                className="flex min-h-11 items-center text-muted-foreground underline-offset-4 hover:underline"
+              >
+                {keepMeeting} {keepMeeting === 1 ? 'word' : 'words'} you keep meeting
+              </Link>
+            )}
+          </div>
+        </>
+      )}
+
       <div className="flex-1">
         {words.loading && <Skeleton className="h-40 w-full rounded-xl" />}
 
@@ -181,6 +208,12 @@ export default function BookPage() {
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">
                   {word.lemma}
+                  {word.known && (
+                    <Check
+                      className="ml-1.5 inline size-4 text-muted-foreground"
+                      aria-label="Known"
+                    />
+                  )}
                   {word.encounters > 1 && (
                     <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
                       {word.encounters}×

@@ -52,6 +52,7 @@ const MyProfilePage = lazy(() => import('./pages/MyProfilePage.tsx'));
 const BooksPage = lazy(() => import('./pages/BooksPage.tsx'));
 const BookPage = lazy(() => import('./pages/BookPage.tsx'));
 const ReviewPage = lazy(() => import('./pages/ReviewPage.tsx'));
+const BrowsePage = lazy(() => import('./pages/BrowsePage.tsx'));
 const BoardPage = lazy(() => import('./pages/BoardPage.tsx'));
 
 function AppPage({ children }: { children: React.ReactNode }) {
@@ -128,6 +129,14 @@ const router = createBrowserRouter([
             element: (
               <AppPage>
                 <BookPage />
+              </AppPage>
+            ),
+          },
+          {
+            path: '/books/:id/browse',
+            element: (
+              <AppPage>
+                <BrowsePage />
               </AppPage>
             ),
           },

@@ -83,4 +83,37 @@ describe('FindWordsAction', () => {
     expect(frequent.map((word) => word.lemma)).toEqual(['staunch', 'flee']);
     expect(frequent[0]?.encounters).toBe(2);
   });
+
+  it('hides known words by default and lists them with status known or all', async () => {
+    const user = await context.createUser();
+    const book = await context.createBook(user.id);
+    await context.saveWord(book, user.id, fled);
+    await context.saveWord(book, user.id, staunch);
+    const flee = (await findWordsAction.execute({ userId: user.id, sort: 'newest' })).find(
+      (word) => word.lemma === 'flee',
+    );
+    await context.wordRepository.setKnown(flee?.id ?? '', user.id, true);
+
+    const lemmas = async (status?: 'active' | 'known' | 'all'): Promise<string[]> =>
+      (await findWordsAction.execute({ userId: user.id, sort: 'newest', ...(status && { status }) })).map(
+        (word) => word.lemma,
+      );
+
+    expect(await lemmas()).toEqual(['staunch']);
+    expect(await lemmas('known')).toEqual(['flee']);
+    expect((await lemmas('all')).sort()).toEqual(['flee', 'staunch']);
+  });
+
+  it('lists only words met at least the given number of times', async () => {
+    const user = await context.createUser();
+    const book = await context.createBook(user.id);
+    await context.saveWord(book, user.id, fled);
+    await context.saveWord(book, user.id, { ...fled, sentence: 'He flees.' });
+    await context.saveWord(book, user.id, staunch);
+
+    const metAgain = await findWordsAction.execute({ userId: user.id, sort: 'newest', minEncounters: 2 });
+
+    expect(metAgain.map((word) => word.lemma)).toEqual(['flee']);
+    expect(await findWordsAction.execute({ userId: user.id, sort: 'newest', minEncounters: 1 })).toHaveLength(2);
+  });
 });

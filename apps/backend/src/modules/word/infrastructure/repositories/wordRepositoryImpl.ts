@@ -1,4 +1,19 @@
-import { and, asc, count, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  countDistinct,
+  desc,
+  eq,
+  gte,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  lt,
+  or,
+  sql,
+} from 'drizzle-orm';
 
 import { IdService } from '../../../../common/id/idService.ts';
 import { normalizeLemma, normalizeSentence } from '../../../../common/text/normalize.ts';
@@ -7,9 +22,16 @@ import type { DatabaseClient } from '../../../../infrastructure/database/databas
 import { books, wordOccurrences, words } from '../../../../infrastructure/database/schema.ts';
 import type { Transaction } from '../../../../infrastructure/database/transaction.ts';
 import type { FindWordsParams, SaveOccurrenceData, WordRepository } from '../../domain/repositories/wordRepository.ts';
-import type { Word, WordOccurrence } from '../../domain/types/word.ts';
+import type {
+  RememberCandidate,
+  RememberOutcome,
+  Word,
+  WordOccurrence,
+  WordsSummary,
+} from '../../domain/types/word.ts';
 
 const maxWords = 1000;
+const maxRememberCandidates = 500;
 
 export class WordRepositoryImpl implements WordRepository {
   private readonly databaseClient: DatabaseClient;
@@ -19,10 +41,16 @@ export class WordRepositoryImpl implements WordRepository {
   }
 
   public async findMany(params: FindWordsParams): Promise<Word[]> {
-    const { userId, bookId, q, sort } = params;
+    const { userId, bookId, q, sort, status = 'active', minEncounters } = params;
     const { db } = this.databaseClient;
 
     const conditions = [eq(words.userId, userId)];
+
+    if (status === 'active') {
+      conditions.push(isNull(words.knownAt));
+    } else if (status === 'known') {
+      conditions.push(isNotNull(words.knownAt));
+    }
 
     if (bookId) {
       conditions.push(eq(wordOccurrences.bookId, bookId));
@@ -38,6 +66,10 @@ export class WordRepositoryImpl implements WordRepository {
     }
 
     const occurrencesCount = sql<number>`(select count(*)::int from ${wordOccurrences} wo where wo.word_id = ${words.id})`;
+
+    if (minEncounters !== undefined && minEncounters > 1) {
+      conditions.push(sql`${occurrencesCount} >= ${minEncounters}`);
+    }
 
     const matched = await db
       .selectDistinct({
@@ -96,6 +128,7 @@ export class WordRepositoryImpl implements WordRepository {
       sourceLanguage: word.sourceLanguage as BookLanguage,
       targetLanguage: word.targetLanguage as NativeLanguage,
       createdAt: word.createdAt,
+      knownAt: word.knownAt,
       encounters,
       occurrences: occurrencesByWord.get(word.id) ?? [],
     }));
@@ -183,6 +216,106 @@ export class WordRepositoryImpl implements WordRepository {
     });
 
     return true;
+  }
+
+  public async findRememberCandidates(userId: string, bookId?: string): Promise<RememberCandidate[]> {
+    const occurrencesCount = sql<number>`(select count(*)::int from ${wordOccurrences} wo where wo.word_id = ${words.id})`;
+    const conditions = [eq(words.userId, userId), isNull(words.knownAt)];
+
+    if (bookId) {
+      conditions.push(eq(wordOccurrences.bookId, bookId));
+    }
+
+    const rows = await this.databaseClient.db
+      .selectDistinct({
+        id: words.id,
+        lemma: words.lemma,
+        lastShownAt: words.lastShownAt,
+        lastOutcome: words.lastOutcome,
+        encounters: occurrencesCount,
+      })
+      .from(words)
+      .innerJoin(wordOccurrences, eq(wordOccurrences.wordId, words.id))
+      .where(and(...conditions))
+      .limit(maxRememberCandidates);
+
+    return rows.map((row) => ({ ...row, lastOutcome: row.lastOutcome as RememberOutcome | null }));
+  }
+
+  public async findOccurrences(wordId: string, bookId?: string): Promise<WordOccurrence[]> {
+    const conditions = [eq(wordOccurrences.wordId, wordId)];
+
+    if (bookId) {
+      conditions.push(eq(wordOccurrences.bookId, bookId));
+    }
+
+    const rows = await this.databaseClient.db
+      .select({ occurrence: wordOccurrences, bookTitle: books.title })
+      .from(wordOccurrences)
+      .innerJoin(books, eq(books.id, wordOccurrences.bookId))
+      .where(and(...conditions))
+      .orderBy(desc(wordOccurrences.createdAt));
+
+    return rows.map(({ occurrence, bookTitle }) => ({
+      id: occurrence.id,
+      bookId: occurrence.bookId,
+      bookTitle,
+      surfaceForm: occurrence.surfaceForm,
+      sentence: occurrence.sentence,
+      translation: occurrence.translation,
+      createdAt: occurrence.createdAt,
+    }));
+  }
+
+  public async recordShown(id: string, userId: string, outcome: RememberOutcome, now: Date): Promise<boolean> {
+    const updated = await this.databaseClient.db
+      .update(words)
+      .set({
+        lastShownAt: now,
+        lastOutcome: outcome,
+        ...(outcome === 'known' && { knownAt: now }),
+      })
+      .where(and(eq(words.id, id), eq(words.userId, userId)))
+      .returning({ id: words.id });
+
+    return updated.length > 0;
+  }
+
+  public async setKnown(id: string, userId: string, known: boolean): Promise<boolean> {
+    const updated = await this.databaseClient.db
+      .update(words)
+      .set({ knownAt: known ? new Date() : null })
+      .where(and(eq(words.id, id), eq(words.userId, userId)))
+      .returning({ id: words.id });
+
+    return updated.length > 0;
+  }
+
+  public async getSummary(userId: string, since: Date): Promise<WordsSummary> {
+    const { db } = this.databaseClient;
+
+    const [totals] = await db
+      .select({
+        totalWords: count(),
+        knownWords: sql<number>`count(${words.knownAt})::int`,
+        newWords: sql<number>`count(*) filter (where ${words.createdAt} >= ${since})::int`,
+      })
+      .from(words)
+      .where(eq(words.userId, userId));
+
+    // Words that existed before the period and were underlined again during it.
+    const [metAgain] = await db
+      .select({ count: countDistinct(wordOccurrences.wordId) })
+      .from(wordOccurrences)
+      .innerJoin(words, eq(words.id, wordOccurrences.wordId))
+      .where(and(eq(words.userId, userId), gte(wordOccurrences.createdAt, since), lt(words.createdAt, since)));
+
+    return {
+      totalWords: totals?.totalWords ?? 0,
+      knownWords: totals?.knownWords ?? 0,
+      newWords: totals?.newWords ?? 0,
+      metAgain: metAgain?.count ?? 0,
+    };
   }
 
   public async updateOccurrenceTranslation(id: string, userId: string, translation: string): Promise<boolean> {

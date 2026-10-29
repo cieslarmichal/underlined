@@ -19,6 +19,8 @@ Kindle has a Vocabulary Builder. Paper books had nothing. Now they do, and the p
 
 Later, browse everything in the **Words** tab: every word from every book, with the original sentences, search, filters and "most often met" sorting.
 
+Learning stays calm: a single optional word to remember on the reading screen, a flip-through of your sentences, and a quiet weekly summary. No streaks, no quizzes, nothing is ever overdue.
+
 ## Why it's different
 
 - 📖 **Real context.** Every word comes with the sentence from *your* book, not a made-up dictionary example.
