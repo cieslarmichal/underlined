@@ -2,6 +2,7 @@ import { PgBoss } from 'pg-boss';
 
 import type { EmailService } from '../common/emailService/emailService.ts';
 import type { EmailTemplate, EmailTemplateDataMap, EmailTemplateName } from '../common/emailService/emailTemplate.ts';
+import { ExternalServiceError } from '../common/errors/externalServiceError.ts';
 import type { LoggerService } from '../common/logger/loggerService.ts';
 import type { Config } from './config.ts';
 
@@ -10,6 +11,24 @@ export interface QueueEmailPayload {
   readonly templateName: EmailTemplateName;
   readonly payload: EmailTemplateDataMap[EmailTemplateName];
 }
+
+// Resend validation errors (e.g. invalid recipient address) fail the same way on every attempt.
+// 429 (rate limit) and 5xx are transient, 401/403 mean misconfiguration that may get fixed - those are retried.
+const nonRetryableResendStatusCodes = new Set([400, 422]);
+
+const isNonRetryableEmailError = (error: unknown): boolean => {
+  if (!(error instanceof ExternalServiceError)) {
+    return false;
+  }
+
+  const { originalError } = error.context;
+
+  if (typeof originalError !== 'object' || originalError === null || !('statusCode' in originalError)) {
+    return false;
+  }
+
+  return typeof originalError.statusCode === 'number' && nonRetryableResendStatusCodes.has(originalError.statusCode);
+};
 
 export class EmailQueueService {
   private boss: PgBoss;
@@ -124,17 +143,23 @@ export class EmailQueueService {
             });
           } catch (error: unknown) {
             const duration = Date.now() - startTime;
+            const isNonRetryable = isNonRetryableEmailError(error);
 
             this.loggerService.error({
-              message: 'Failed to send email',
+              message: isNonRetryable ? 'Email rejected by provider - not retrying' : 'Failed to send email',
               jobId: job.id,
               recipient,
               templateName,
               attemptNumber,
               durationMs: duration,
-              willRetry: attemptNumber < job.retryLimit,
+              willRetry: !isNonRetryable && attemptNumber < job.retryLimit,
               err: error,
             });
+
+            // Returning completes the job, so pg-boss does not schedule pointless retries
+            if (isNonRetryable) {
+              continue;
+            }
 
             throw error;
           }
