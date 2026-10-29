@@ -25,7 +25,7 @@
   "hashSaltRounds": 12,
   "logLevel": "debug",
   "resend": {
-    "fromEmail": "Underlined <noreply@example.com>",
+    "fromEmail": "Underlined <kontakt@cywilnecentrumdzialan.pl>",
     "emails": {
       "verifyAccount": {
         "templateFile": "verifyAccount.html",
