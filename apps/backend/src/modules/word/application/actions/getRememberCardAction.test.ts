@@ -26,7 +26,7 @@ describe('GetRememberCardAction', () => {
     expect(await getRememberCardAction.execute(user.id)).toBeNull();
   });
 
-  it('returns a word with one of its sentences and the book title', async () => {
+  it('returns a word with its sentence and meaning', async () => {
     const user = await context.createUser();
     const book = await context.createBook(user.id);
     await context.saveWord(book, user.id, fled);
@@ -35,12 +35,24 @@ describe('GetRememberCardAction', () => {
 
     expect(card).toMatchObject({
       lemma: 'flee',
-      encounters: 1,
-      sentence: fled.sentence,
-      surfaceForm: 'fled',
-      translation: 'uciekać',
-      bookTitle: book.title,
+      sentences: [{ sentence: fled.sentence, surfaceForm: 'fled' }],
+      translations: ['uciekać'],
     });
+  });
+
+  it('shows up to two different sentences of the same word and their distinct meanings', async () => {
+    const user = await context.createUser();
+    const book = await context.createBook(user.id);
+    await context.saveWord(book, user.id, fled);
+    await context.saveWord(book, user.id, { ...fled, sentence: 'Bilbo fled the dragon.' });
+    await context.saveWord(book, user.id, { ...fled, sentence: 'They fled at dawn.', translation: 'zbiec' });
+
+    const card = await getRememberCardAction.execute(user.id);
+
+    expect(card?.sentences).toHaveLength(2);
+    expect(new Set(card?.sentences.map((entry) => entry.sentence)).size).toBe(2);
+    expect(card?.translations.length).toBeGreaterThanOrEqual(1);
+    expect(new Set(card?.translations).size).toBe(card?.translations.length);
   });
 
   it('only uses words and sentences from the given book', async () => {
@@ -58,7 +70,7 @@ describe('GetRememberCardAction', () => {
 
     for (let i = 0; i < 10; i++) {
       const card = await getRememberCardAction.execute(user.id, harry.id);
-      expect(card).toMatchObject({ lemma: 'flee', sentence: fled.sentence, bookTitle: harry.title });
+      expect(card).toMatchObject({ lemma: 'flee', sentences: [{ sentence: fled.sentence }] });
     }
   });
 

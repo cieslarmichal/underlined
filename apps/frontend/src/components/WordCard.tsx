@@ -30,11 +30,6 @@ export default function WordCard({ word, onEdit, onDelete, onToggleKnown }: Prop
                 known
               </span>
             )}
-            {word.encounters > 1 && (
-              <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                met {word.encounters}×
-              </span>
-            )}
           </h2>
           <p className="mt-0.5 text-sm text-muted-foreground">{meanings.join(' — ')}</p>
         </div>

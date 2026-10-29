@@ -4,7 +4,6 @@ export const captureItemSchema = Type.Object({
   lemma: Type.String(),
   surfaceForm: Type.String(),
   translation: Type.String(),
-  timesSeen: Type.Number(),
 });
 
 export const captureSchema = Type.Object({

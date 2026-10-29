@@ -26,7 +26,6 @@ export const wordsQuerySchema = Type.Object({
   q: Type.Optional(Type.String({ maxLength: 100 })),
   sort: Type.Optional(Type.Union([Type.Literal('newest'), Type.Literal('frequent')])),
   status: Type.Optional(Type.Union([Type.Literal('active'), Type.Literal('known'), Type.Literal('all')])),
-  minEncounters: Type.Optional(Type.Number({ minimum: 1, maximum: 100 })),
 });
 
 export const rememberQuerySchema = Type.Object({
@@ -36,11 +35,8 @@ export const rememberQuerySchema = Type.Object({
 export const rememberCardSchema = Type.Object({
   wordId: Type.String({ format: 'uuid' }),
   lemma: Type.String(),
-  encounters: Type.Number(),
-  sentence: Type.String(),
-  surfaceForm: Type.String(),
-  translation: Type.String(),
-  bookTitle: Type.String(),
+  sentences: Type.Array(Type.Object({ sentence: Type.String(), surfaceForm: Type.String() })),
+  translations: Type.Array(Type.String()),
 });
 
 export const rememberResponseSchema = Type.Object({
@@ -57,7 +53,6 @@ export const knownRequestSchema = Type.Object({
 
 export const summaryResponseSchema = Type.Object({
   newWords: Type.Number(),
-  metAgain: Type.Number(),
   totalWords: Type.Number(),
   knownWords: Type.Number(),
 });

@@ -137,9 +137,6 @@ export default function ReviewPage() {
             <p className="font-semibold">
               {item.lemma} <span className="font-normal text-muted-foreground">→</span> {item.translation}
             </p>
-            {item.timesSeen > 0 && (
-              <p className="mt-0.5 text-xs text-muted-foreground">already have ({item.timesSeen}×)</p>
-            )}
           </li>
         ))}
       </ul>

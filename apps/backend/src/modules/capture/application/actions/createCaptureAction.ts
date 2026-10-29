@@ -10,8 +10,7 @@ import type { Config } from '../../../../core/config.ts';
 import type { BookRepository } from '../../../book/domain/repositories/bookRepository.ts';
 import type { UserRepository } from '../../../user/domain/repositories/userRepository.ts';
 import type { CaptureRepository } from '../../domain/repositories/captureRepository.ts';
-import type { CaptureView } from '../../domain/types/capture.ts';
-import type { CaptureViewService } from '../services/captureViewService.ts';
+import type { Capture } from '../../domain/types/capture.ts';
 
 import type { AnalyzeCaptureAction } from './analyzeCaptureAction.ts';
 import { assertWithinDailyLimit } from './checkCaptureLimit.ts';
@@ -28,7 +27,6 @@ export class CreateCaptureAction {
   private readonly bookRepository: BookRepository;
   private readonly userRepository: UserRepository;
   private readonly analyzeCaptureAction: AnalyzeCaptureAction;
-  private readonly captureViewService: CaptureViewService;
   private readonly imageOptimizationService: ImageOptimizationService;
   private readonly s3Service: S3Service;
   private readonly config: Config;
@@ -38,7 +36,6 @@ export class CreateCaptureAction {
     bookRepository: BookRepository,
     userRepository: UserRepository,
     analyzeCaptureAction: AnalyzeCaptureAction,
-    captureViewService: CaptureViewService,
     imageOptimizationService: ImageOptimizationService,
     s3Service: S3Service,
     config: Config,
@@ -47,13 +44,12 @@ export class CreateCaptureAction {
     this.bookRepository = bookRepository;
     this.userRepository = userRepository;
     this.analyzeCaptureAction = analyzeCaptureAction;
-    this.captureViewService = captureViewService;
     this.imageOptimizationService = imageOptimizationService;
     this.s3Service = s3Service;
     this.config = config;
   }
 
-  public async execute(payload: CreateCaptureActionPayload, context: ExecutionContext): Promise<CaptureView> {
+  public async execute(payload: CreateCaptureActionPayload, context: ExecutionContext): Promise<Capture> {
     const { userId, bookId, data, contentType } = payload;
     const { maxFileSizeBytes, allowedContentTypes } = this.config.image;
 
@@ -114,6 +110,6 @@ export class CreateCaptureAction {
       context,
     );
 
-    return this.captureViewService.toView(analyzed);
+    return analyzed;
   }
 }

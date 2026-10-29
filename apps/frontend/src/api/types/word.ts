@@ -13,7 +13,6 @@ export interface Word {
   readonly lemma: string;
   readonly sourceLanguage: string;
   readonly targetLanguage: string;
-  readonly encounters: number;
   readonly known: boolean;
   readonly occurrences: WordOccurrence[];
   readonly createdAt: string;
@@ -25,20 +24,16 @@ export type WordStatus = 'active' | 'known' | 'all';
 
 export type RememberOutcome = 'recalled' | 'not_yet' | 'known';
 
-// One word with a sentence from the book, shown as a gentle reminder.
+// A word shown as a gentle reminder, with up to two of its sentences from the book.
 export interface RememberCard {
   readonly wordId: string;
   readonly lemma: string;
-  readonly encounters: number;
-  readonly sentence: string;
-  readonly surfaceForm: string;
-  readonly translation: string;
-  readonly bookTitle: string;
+  readonly sentences: { readonly sentence: string; readonly surfaceForm: string }[];
+  readonly translations: string[];
 }
 
 export interface WordsSummary {
   readonly newWords: number;
-  readonly metAgain: number;
   readonly totalWords: number;
   readonly knownWords: number;
 }

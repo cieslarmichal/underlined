@@ -29,13 +29,12 @@ describe('GetWordsSummaryAction', () => {
 
     expect(await getWordsSummaryAction.execute(user.id)).toEqual({
       newWords: 0,
-      metAgain: 0,
       totalWords: 0,
       knownWords: 0,
     });
   });
 
-  it('counts new words, words met again and known words of the last week', async () => {
+  it('counts new words, all words and known words of the last week', async () => {
     const user = await context.createUser();
     const other = await context.createUser();
     const book = await context.createBook(user.id);
@@ -80,7 +79,6 @@ describe('GetWordsSummaryAction', () => {
 
     expect(await getWordsSummaryAction.execute(user.id)).toEqual({
       newWords: 2,
-      metAgain: 1,
       totalWords: 4,
       knownWords: 1,
     });

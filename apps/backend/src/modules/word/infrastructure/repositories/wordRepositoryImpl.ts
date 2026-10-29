@@ -1,19 +1,4 @@
-import {
-  and,
-  asc,
-  count,
-  countDistinct,
-  desc,
-  eq,
-  gte,
-  ilike,
-  inArray,
-  isNotNull,
-  isNull,
-  lt,
-  or,
-  sql,
-} from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNotNull, isNull, or, sql } from 'drizzle-orm';
 
 import { IdService } from '../../../../common/id/idService.ts';
 import { normalizeLemma, normalizeSentence } from '../../../../common/text/normalize.ts';
@@ -41,7 +26,7 @@ export class WordRepositoryImpl implements WordRepository {
   }
 
   public async findMany(params: FindWordsParams): Promise<Word[]> {
-    const { userId, bookId, q, sort, status = 'active', minEncounters } = params;
+    const { userId, bookId, q, sort, status = 'active' } = params;
     const { db } = this.databaseClient;
 
     const conditions = [eq(words.userId, userId)];
@@ -66,10 +51,6 @@ export class WordRepositoryImpl implements WordRepository {
     }
 
     const occurrencesCount = sql<number>`(select count(*)::int from ${wordOccurrences} wo where wo.word_id = ${words.id})`;
-
-    if (minEncounters !== undefined && minEncounters > 1) {
-      conditions.push(sql`${occurrencesCount} >= ${minEncounters}`);
-    }
 
     const matched = await db
       .selectDistinct({
@@ -303,18 +284,10 @@ export class WordRepositoryImpl implements WordRepository {
       .from(words)
       .where(eq(words.userId, userId));
 
-    // Words that existed before the period and were underlined again during it.
-    const [metAgain] = await db
-      .select({ count: countDistinct(wordOccurrences.wordId) })
-      .from(wordOccurrences)
-      .innerJoin(words, eq(words.id, wordOccurrences.wordId))
-      .where(and(eq(words.userId, userId), gte(wordOccurrences.createdAt, since), lt(words.createdAt, since)));
-
     return {
       totalWords: totals?.totalWords ?? 0,
       knownWords: totals?.knownWords ?? 0,
       newWords: totals?.newWords ?? 0,
-      metAgain: metAgain?.count ?? 0,
     };
   }
 

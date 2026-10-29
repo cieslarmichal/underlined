@@ -12,7 +12,6 @@ export interface FindWordsParams {
   readonly sort: WordSort;
   // Defaults to active words (not marked as known).
   readonly status?: WordStatus;
-  readonly minEncounters?: number | undefined;
 }
 
 export interface SaveOccurrenceData {

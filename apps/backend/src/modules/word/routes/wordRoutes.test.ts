@@ -88,9 +88,8 @@ describe('Word learning routes', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json<{ data: Record<string, unknown> }>().data).toMatchObject({
       lemma: 'flee',
-      sentence: fled.sentence,
-      translation: 'uciekać',
-      bookTitle: 'Harry Potter',
+      sentences: [{ sentence: fled.sentence, surfaceForm: 'fled' }],
+      translations: ['uciekać'],
     });
   });
 
@@ -120,14 +119,9 @@ describe('Word learning routes', () => {
     expect((await list('active'))[0]).toMatchObject({ id, known: false });
   });
 
-  it('returns 404 for a missing word and filters by minimum encounters', async () => {
+  it('returns 404 for a missing word', async () => {
     expect((await call('PATCH', `/words/${Generator.uuid()}/known`, { known: true })).statusCode).toBe(404);
     expect((await call('POST', `/words/${Generator.uuid()}/remember`, { outcome: 'recalled' })).statusCode).toBe(404);
-
-    await saveWord();
-    await saveWord('He flees again.');
-    expect((await call('GET', '/words?minEncounters=2')).json<{ data: unknown[] }>().data).toHaveLength(1);
-    expect((await call('GET', '/words?minEncounters=3')).json<{ data: unknown[] }>().data).toHaveLength(0);
   });
 
   it('returns a summary of the last week', async () => {
@@ -135,7 +129,6 @@ describe('Word learning routes', () => {
 
     expect((await call('GET', '/words/summary')).json()).toEqual({
       newWords: 1,
-      metAgain: 0,
       totalWords: 1,
       knownWords: 0,
     });

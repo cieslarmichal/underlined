@@ -11,7 +11,6 @@ import { OperationNotValidError } from '../../../../common/errors/operationNotVa
 import { ResourceNotFoundError } from '../../../../common/errors/resourceNotFoundError.ts';
 import type { S3Service } from '../../../../common/s3/s3Service.ts';
 import { users } from '../../../../infrastructure/database/schema.ts';
-import { CaptureViewService } from '../services/captureViewService.ts';
 
 import { AnalyzeCaptureAction } from './analyzeCaptureAction.ts';
 import { RetryCaptureAction } from './retryCaptureAction.ts';
@@ -45,7 +44,6 @@ describe('RetryCaptureAction', () => {
       context.bookRepository,
       context.userRepository,
       new AnalyzeCaptureAction(context.captureRepository, pageAnalysisService, context.loggerService),
-      new CaptureViewService(context.bookRepository, context.wordRepository),
       s3Service,
       context.config,
     );
@@ -59,10 +57,10 @@ describe('RetryCaptureAction', () => {
     const book = await context.createBook(user.id);
     const capture = await context.createCapture(user.id, book.id, [], 'failed');
 
-    const view = await retryCaptureAction.execute(capture.id, user.id, Generator.executionContext());
+    const retried = await retryCaptureAction.execute(capture.id, user.id, Generator.executionContext());
 
-    expect(view.capture.status).toBe('pending_review');
-    expect(view.items).toHaveLength(1);
+    expect(retried.status).toBe('pending_review');
+    expect(retried.items).toHaveLength(1);
     expect(downloaded).toEqual([capture.imageKey]);
   });
 
@@ -72,9 +70,9 @@ describe('RetryCaptureAction', () => {
     const capture = await context.createCapture(user.id, book.id, [], 'failed');
     modelResult = new Error('still down');
 
-    const view = await retryCaptureAction.execute(capture.id, user.id, Generator.executionContext());
+    const retried = await retryCaptureAction.execute(capture.id, user.id, Generator.executionContext());
 
-    expect(view.capture.status).toBe('failed');
+    expect(retried.status).toBe('failed');
   });
 
   it('throws OperationNotValidError for a capture that did not fail', async () => {

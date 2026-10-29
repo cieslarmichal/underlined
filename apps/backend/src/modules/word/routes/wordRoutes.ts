@@ -80,7 +80,7 @@ export const wordRoutes: FastifyPluginAsyncTypebox<{
     config: { rateLimit: config.rateLimit.profile },
     preValidation: [authenticationMiddleware],
     handler: async (request, reply) => {
-      const { bookId, q, sort, status, minEncounters } = request.query;
+      const { bookId, q, sort, status } = request.query;
 
       const words = await findWordsAction.execute({
         userId: getUserId(request),
@@ -88,7 +88,6 @@ export const wordRoutes: FastifyPluginAsyncTypebox<{
         q: q?.trim() || undefined,
         sort: sort ?? 'newest',
         status: status ?? 'active',
-        minEncounters,
       });
 
       return reply.send({ data: words.map(mapWordToResponse) });

@@ -66,12 +66,19 @@ export default function RememberCard({ bookId, onKnown }: Props) {
         </button>
       </div>
 
-      <p className="text-base leading-relaxed">
-        <HighlightedSentence
-          sentence={card.sentence}
-          word={card.surfaceForm}
-        />
-      </p>
+      <ul className="space-y-3">
+        {card.sentences.map(({ sentence, surfaceForm }) => (
+          <li
+            key={sentence}
+            className="text-base leading-relaxed"
+          >
+            <HighlightedSentence
+              sentence={sentence}
+              word={surfaceForm}
+            />
+          </li>
+        ))}
+      </ul>
 
       {!revealed && (
         <Button
@@ -86,7 +93,7 @@ export default function RememberCard({ bookId, onKnown }: Props) {
       {revealed && (
         <div className="mt-3">
           <p className="font-semibold">
-            {card.lemma} <span className="font-normal text-muted-foreground">→</span> {card.translation}
+            {card.lemma} <span className="font-normal text-muted-foreground">→</span> {card.translations.join('; ')}
           </p>
 
           {!answered ? (

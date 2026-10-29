@@ -179,7 +179,7 @@ describe('Book, capture and word flow', () => {
 
       expect(statusCode).toBe(201);
       expect(body.status).toBe('pending_review');
-      expect(body.items).toEqual([{ lemma: 'flee', surfaceForm: 'fled', translation: 'uciekać', timesSeen: 0 }]);
+      expect(body.items).toEqual([{ lemma: 'flee', surfaceForm: 'fled', translation: 'uciekać' }]);
 
       const pending = await server.inject({ method: 'GET', url: `/books/${book.id}/captures`, headers: auth() });
       expect(pending.json<{ data: CaptureDto[] }>().data).toHaveLength(1);
@@ -212,7 +212,7 @@ describe('Book, capture and word flow', () => {
         },
       ];
       const second = await uploadCapture(book.id);
-      expect(second.body.items.map((item) => item.timesSeen)).toEqual([1, 1]);
+      expect(second.body.items).toHaveLength(2);
       await server.inject({ method: 'POST', url: `/captures/${second.body.id}/accept`, headers: auth() });
 
       const words = await listWords();

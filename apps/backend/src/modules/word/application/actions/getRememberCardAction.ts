@@ -2,6 +2,19 @@ import { pickCandidate } from '../../domain/rememberPicker.ts';
 import type { WordRepository } from '../../domain/repositories/wordRepository.ts';
 import type { RememberCard } from '../../domain/types/word.ts';
 
+const maxSentences = 2;
+
+function shuffle<T>(items: T[], random: () => number): T[] {
+  const copy = [...items];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j] as T, copy[i] as T];
+  }
+
+  return copy;
+}
+
 export interface GetRememberCardOptions {
   readonly now?: Date;
   readonly random?: () => number;
@@ -30,20 +43,17 @@ export class GetRememberCardAction {
     }
 
     const occurrences = await this.wordRepository.findOccurrences(candidate.id, bookId);
-    const occurrence = occurrences[Math.floor(random() * occurrences.length)];
+    const shown = shuffle(occurrences, random).slice(0, maxSentences);
 
-    if (!occurrence) {
+    if (shown.length === 0) {
       return null;
     }
 
     return {
       wordId: candidate.id,
       lemma: candidate.lemma,
-      encounters: candidate.encounters,
-      sentence: occurrence.sentence,
-      surfaceForm: occurrence.surfaceForm,
-      translation: occurrence.translation,
-      bookTitle: occurrence.bookTitle,
+      sentences: shown.map(({ sentence, surfaceForm }) => ({ sentence, surfaceForm })),
+      translations: [...new Set(shown.map((occurrence) => occurrence.translation))],
     };
   }
 }

@@ -28,15 +28,14 @@ import { apiErrorMessage } from '../lib/apiErrorMessage';
 
 const allBooks = 'all';
 
-type View = 'active' | 'met' | 'known';
+type View = 'active' | 'known';
 
 const views: { value: View; label: string }[] = [
   { value: 'active', label: 'Learning' },
-  { value: 'met', label: 'Met again' },
   { value: 'known', label: 'Known' },
 ];
 
-const parseView = (value: string | null): View => (value === 'met' || value === 'known' ? value : 'active');
+const parseView = (value: string | null): View => (value === 'known' ? value : 'active');
 
 export default function BoardPage() {
   useSEO({ title: `Words - ${site.name}`, noindex: true });
@@ -60,7 +59,6 @@ export default function BoardPage() {
         q: query || undefined,
         sort,
         status: view === 'known' ? 'known' : 'active',
-        ...(view === 'met' && { minEncounters: 2 }),
       }),
     [bookId, query, sort, view],
   );
@@ -92,8 +90,8 @@ export default function BoardPage() {
       <h1 className="mb-1 text-2xl font-bold">Words</h1>
       {summary.data && summary.data.totalWords > 0 && (
         <p className="mb-4 text-sm text-muted-foreground">
-          This week: {summary.data.newWords} new {summary.data.newWords === 1 ? 'word' : 'words'},{' '}
-          {summary.data.metAgain} met again. {summary.data.totalWords} in total, {summary.data.knownWords} known.
+          This week: {summary.data.newWords} new {summary.data.newWords === 1 ? 'word' : 'words'}.{' '}
+          {summary.data.totalWords} in total, {summary.data.knownWords} known.
         </p>
       )}
 

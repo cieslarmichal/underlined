@@ -13,13 +13,3 @@ export interface Capture {
   readonly items: UnderlinedWord[];
   readonly createdAt: Date;
 }
-
-export interface CaptureItem extends UnderlinedWord {
-  // How many times the word is already saved in the user's dictionary.
-  readonly timesSeen: number;
-}
-
-export interface CaptureView {
-  readonly capture: Capture;
-  readonly items: CaptureItem[];
-}

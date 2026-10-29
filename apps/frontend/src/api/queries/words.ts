@@ -6,7 +6,6 @@ export interface GetWordsInput {
   q?: string;
   sort?: WordSort;
   status?: WordStatus;
-  minEncounters?: number;
 }
 
 export const getWords = async (input: GetWordsInput = {}): Promise<Word[]> => {
@@ -16,7 +15,6 @@ export const getWords = async (input: GetWordsInput = {}): Promise<Word[]> => {
   if (input.q) params.set('q', input.q);
   if (input.sort) params.set('sort', input.sort);
   if (input.status) params.set('status', input.status);
-  if (input.minEncounters) params.set('minEncounters', String(input.minEncounters));
 
   const response = await apiRequest<{ data: Word[] }>('/words', { method: 'GET', params });
   return response.data;

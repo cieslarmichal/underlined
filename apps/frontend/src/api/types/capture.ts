@@ -4,8 +4,6 @@ export interface CaptureItem {
   readonly lemma: string;
   readonly surfaceForm: string;
   readonly translation: string;
-  // How many times the word is already in the dictionary.
-  readonly timesSeen: number;
 }
 
 export interface Capture {

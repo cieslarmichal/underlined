@@ -109,7 +109,6 @@ export default function BookPage() {
   }
 
   const pendingCaptures = pending.data ?? [];
-  const keepMeeting = words.data?.filter((word) => word.encounters > 1 && !word.known).length ?? 0;
 
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-65px-3.5rem-env(safe-area-inset-bottom))] max-w-2xl flex-col px-4 py-6">
@@ -175,14 +174,6 @@ export default function BookPage() {
             >
               Flip through your words
             </Link>
-            {keepMeeting > 0 && (
-              <Link
-                to={`/words?bookId=${id}&view=met`}
-                className="flex min-h-11 items-center text-muted-foreground underline-offset-4 hover:underline"
-              >
-                {keepMeeting} {keepMeeting === 1 ? 'word' : 'words'} you keep meeting
-              </Link>
-            )}
           </div>
         </>
       )}
@@ -213,11 +204,6 @@ export default function BookPage() {
                       className="ml-1.5 inline size-4 text-muted-foreground"
                       aria-label="Known"
                     />
-                  )}
-                  {word.encounters > 1 && (
-                    <span className="ml-2 rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                      {word.encounters}×
-                    </span>
                   )}
                 </p>
                 <p className="text-sm text-muted-foreground">{distinctTranslations(word)}</p>

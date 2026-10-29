@@ -77,11 +77,11 @@ Wszystkie słowa ze wszystkich książek przegląda się na **Boardzie**.
 
 Aplikacja ma pomagać zapamiętywać słowa bez presji: bez passy dni, bez liczników „do zrobienia”, bez powiadomień i bez kar. Wszystko jest opcjonalne i pojawia się tam, gdzie czytelnik już jest.
 
-- **Karta „Remember this?”** na stronie książki (Reading): jedno zapisane słowo w zdaniu z książki, „Show meaning”, potem „Got it” / „Not yet” albo „I already know this word well”. To nie kolejka: po odpowiedzi jest tylko „Another word”. Można ją schować albo wyłączyć w profilu (preferencja w `localStorage`, domyślnie włączona).
+- **Karta „Remember this?”** na stronie książki (Reading): jedno zapisane słowo z (do) dwoma zdaniami z książki, „Show meaning”, potem „Got it” / „Not yet” albo „I already know this word well”. To nie kolejka: po odpowiedzi jest tylko „Another word”. Można ją schować albo wyłączyć w profilu (preferencja w `localStorage`, domyślnie włączona).
 - **Losowanie z wagami, bez harmonogramu.** Słowo jest tym bardziej prawdopodobne, im częściej je spotykasz (`1 + ln(N)`) i im dawniej je pokazano (do trzykrotnej wagi po ok. 9 dniach); świeżo pokazane i przypomniane („Got it”) są rzadsze. Nic nigdy nie jest „zaległe”. Wagi: `domain/rememberPicker.ts`.
-- **Ponowne podkreślenie to obserwacja, nie zadanie.** Słowa spotkane co najmniej 2× mają filtr „Met again” na ekranie Words i link „N words you keep meeting” na stronie książki.
+- **Powtórzenia nie są wyróżniane.** Żadnych liczników „2×”, filtrów „spotkane ponownie” ani komunikatów o powtórkach. Gdy słowo pojawiło się w kilku zdaniach, po prostu je widać: na karcie dwa zdania, na ekranie Words „Show sentences (N)”. Częstość wpływa tylko na to, jak często słowo trafia na kartę.
 - **Przeglądanie jak czytanie** (`/books/:id/browse`): zdania z książki w kolejności spotkania, słowo podświetlone, znaczenie widoczne. Bez pytań i ocen; strzałki, klawisze i przesunięcie palcem.
-- **Cichy podgląd tygodnia** na ekranie Words: nowe słowa, spotkane ponownie, razem i znane. Tylko do wglądu, bez celów.
+- **Cichy podgląd tygodnia** na ekranie Words: nowe słowa, razem i znane. Tylko do wglądu, bez celów.
 - **„Znam to słowo”**: słowo przestaje się pokazywać na karcie i na liście „Learning”, ale zostaje w słowniku (filtr „Known”, można cofnąć).
 
 ### Poza MVP (później)

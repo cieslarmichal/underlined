@@ -34,20 +34,17 @@ export interface RememberCandidate {
   readonly lastOutcome: RememberOutcome | null;
 }
 
-// A single word with one of its sentences, shown to the reader as a gentle reminder.
+// A word shown to the reader as a gentle reminder, with up to two of its sentences from the book.
 export interface RememberCard {
   readonly wordId: string;
   readonly lemma: string;
-  readonly encounters: number;
-  readonly sentence: string;
-  readonly surfaceForm: string;
-  readonly translation: string;
-  readonly bookTitle: string;
+  readonly sentences: { readonly sentence: string; readonly surfaceForm: string }[];
+  // Distinct meanings of the word in the shown sentences.
+  readonly translations: string[];
 }
 
 export interface WordsSummary {
   readonly newWords: number;
-  readonly metAgain: number;
   readonly totalWords: number;
   readonly knownWords: number;
 }

@@ -19,8 +19,7 @@ import { CreateCaptureAction } from '../application/actions/createCaptureAction.
 import { FindCapturesAction } from '../application/actions/findCapturesAction.ts';
 import { RejectCaptureAction } from '../application/actions/rejectCaptureAction.ts';
 import { RetryCaptureAction } from '../application/actions/retryCaptureAction.ts';
-import { CaptureViewService } from '../application/services/captureViewService.ts';
-import type { CaptureView } from '../domain/types/capture.ts';
+import type { Capture } from '../domain/types/capture.ts';
 import { CaptureRepositoryImpl } from '../infrastructure/repositories/captureRepositoryImpl.ts';
 
 import {
@@ -56,14 +55,12 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
   const wordRepository = new WordRepositoryImpl(databaseClient);
   const captureRepository = new CaptureRepositoryImpl(databaseClient);
 
-  const captureViewService = new CaptureViewService(bookRepository, wordRepository);
   const analyzeCaptureAction = new AnalyzeCaptureAction(captureRepository, pageAnalysisService, loggerService);
   const createCaptureAction = new CreateCaptureAction(
     captureRepository,
     bookRepository,
     userRepository,
     analyzeCaptureAction,
-    captureViewService,
     imageOptimizationService,
     s3Service,
     config,
@@ -73,7 +70,6 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
     bookRepository,
     userRepository,
     analyzeCaptureAction,
-    captureViewService,
     s3Service,
     config,
   );
@@ -84,7 +80,7 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
     databaseClient,
   );
   const rejectCaptureAction = new RejectCaptureAction(captureRepository);
-  const findCapturesAction = new FindCapturesAction(captureRepository, bookRepository, captureViewService);
+  const findCapturesAction = new FindCapturesAction(captureRepository, bookRepository);
 
   const authenticationMiddleware = createAuthenticationMiddleware(tokenService, userRepository);
 
@@ -96,16 +92,11 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
     return request.user.userId;
   };
 
-  const mapCaptureToResponse = ({ capture, items }: CaptureView): CaptureDto => ({
+  const mapCaptureToResponse = (capture: Capture): CaptureDto => ({
     id: capture.id,
     bookId: capture.bookId,
     status: capture.status,
-    items: items.map(({ lemma, surfaceForm, translation, timesSeen }) => ({
-      lemma,
-      surfaceForm,
-      translation,
-      timesSeen,
-    })),
+    items: capture.items.map(({ lemma, surfaceForm, translation }) => ({ lemma, surfaceForm, translation })),
     createdAt: capture.createdAt.toISOString(),
   });
 
@@ -128,12 +119,12 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
 
       const data = await file.toBuffer();
 
-      const view = await createCaptureAction.execute(
+      const capture = await createCaptureAction.execute(
         { userId, bookId: request.params.id, data, contentType: file.mimetype },
         { requestId: request.id, userId },
       );
 
-      return reply.status(201).send(mapCaptureToResponse(view));
+      return reply.status(201).send(mapCaptureToResponse(capture));
     },
   });
 
@@ -146,13 +137,13 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
     config: { rateLimit: config.rateLimit.profile },
     preValidation: [authenticationMiddleware],
     handler: async (request, reply) => {
-      const views = await findCapturesAction.execute(
+      const captures = await findCapturesAction.execute(
         request.params.id,
         getUserId(request),
         request.query.status ?? 'pending_review',
       );
 
-      return reply.send({ data: views.map(mapCaptureToResponse) });
+      return reply.send({ data: captures.map(mapCaptureToResponse) });
     },
   });
 
@@ -185,9 +176,9 @@ export const captureRoutes: FastifyPluginAsyncTypebox<{
     handler: async (request, reply) => {
       const userId = getUserId(request);
 
-      const view = await retryCaptureAction.execute(request.params.id, userId, { requestId: request.id, userId });
+      const capture = await retryCaptureAction.execute(request.params.id, userId, { requestId: request.id, userId });
 
-      return reply.send(mapCaptureToResponse(view));
+      return reply.send(mapCaptureToResponse(capture));
     },
   });
 };

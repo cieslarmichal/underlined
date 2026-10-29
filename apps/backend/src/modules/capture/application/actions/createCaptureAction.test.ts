@@ -14,7 +14,6 @@ import { ResourceNotFoundError } from '../../../../common/errors/resourceNotFoun
 import { ImageOptimizationService } from '../../../../common/imageOptimization/imageOptimizationService.ts';
 import type { S3Service, UploadFilePayload } from '../../../../common/s3/s3Service.ts';
 import { users } from '../../../../infrastructure/database/schema.ts';
-import { CaptureViewService } from '../services/captureViewService.ts';
 
 import { AnalyzeCaptureAction } from './analyzeCaptureAction.ts';
 import { CreateCaptureAction } from './createCaptureAction.ts';
@@ -52,7 +51,6 @@ describe('CreateCaptureAction', () => {
       context.bookRepository,
       context.userRepository,
       new AnalyzeCaptureAction(context.captureRepository, pageAnalysisService, context.loggerService),
-      new CaptureViewService(context.bookRepository, context.wordRepository),
       new ImageOptimizationService(),
       s3Service,
       context.config,
@@ -66,15 +64,15 @@ describe('CreateCaptureAction', () => {
     const user = await context.createUser('pl');
     const book = await context.createBook(user.id);
 
-    const view = await createCaptureAction.execute(
+    const capture = await createCaptureAction.execute(
       { userId: user.id, bookId: book.id, data: image, contentType: 'image/png' },
       Generator.executionContext(),
     );
 
-    expect(view.capture).toMatchObject({ status: 'pending_review', targetLanguage: 'pl', bookId: book.id });
-    expect(view.items).toEqual([{ ...fled, timesSeen: 0 }]);
+    expect(capture).toMatchObject({ status: 'pending_review', targetLanguage: 'pl', bookId: book.id });
+    expect(capture.items).toEqual([fled]);
     expect(uploads).toHaveLength(1);
-    expect(uploads[0]).toMatchObject({ fileName: view.capture.imageKey, isPrivate: true, contentType: 'image/jpeg' });
+    expect(uploads[0]).toMatchObject({ fileName: capture.imageKey, isPrivate: true, contentType: 'image/jpeg' });
   });
 
   it('keeps a failed capture with its image when the model fails', async () => {
@@ -82,12 +80,12 @@ describe('CreateCaptureAction', () => {
     const book = await context.createBook(user.id);
     modelResult = new Error('model down');
 
-    const view = await createCaptureAction.execute(
+    const capture = await createCaptureAction.execute(
       { userId: user.id, bookId: book.id, data: image, contentType: 'image/png' },
       Generator.executionContext(),
     );
 
-    expect(view.capture.status).toBe('failed');
+    expect(capture.status).toBe('failed');
     expect(uploads).toHaveLength(1);
   });
 
