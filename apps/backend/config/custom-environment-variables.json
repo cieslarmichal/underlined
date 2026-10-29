@@ -1,0 +1,24 @@
+{
+  "aws": {
+    "accessKeyId": "AWS_ACCESS_KEY_ID",
+    "secretAccessKey": "AWS_SECRET_ACCESS_KEY"
+  },
+  "database": {
+    "url": "DATABASE_URL"
+  },
+  "logLevel": "LOG_LEVEL",
+  "cookie": {
+    "secret": "COOKIE_SECRET"
+  },
+  "resend": {
+    "apiKey": "RESEND_API_KEY"
+  },
+  "token": {
+    "access": {
+      "secret": "ACCESS_TOKEN_SECRET"
+    },
+    "refresh": {
+      "secret": "REFRESH_TOKEN_SECRET"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "database": {
+    "ssl": true
+  },
+  "hashSaltRounds": 14,
+  "rateLimit": {
+    "register": {
+      "max": 3,
+      "timeWindow": 600000
+    },
+    "login": {
+      "max": 5,
+      "timeWindow": 600000
+    },
+    "logout": {
+      "max": 10,
+      "timeWindow": 60000
+    },
+    "refreshToken": {
+      "max": 20,
+      "timeWindow": 60000
+    },
+    "profile": {
+      "max": 30,
+      "timeWindow": 60000
+    },
+    "accountDeletion": {
+      "max": 2,
+      "timeWindow": 3600000
+    },
+    "passwordReset": {
+      "max": 3,
+      "timeWindow": 600000
+    },
+    "uploadImage": {
+      "max": 10,
+      "timeWindow": 60000
+    }
+  },
+  "logLevel": "info",
+  "cookie": {
+    "refreshToken": {
+      "name": "refresh-token",
+      "sameSite": "lax",
+      "domain": ".underlined.com"
+    }
+  }
+}

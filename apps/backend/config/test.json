@@ -1,0 +1,63 @@
+{
+  "aws": {
+    "accessKeyId": "test",
+    "secretAccessKey": "test",
+    "endpoint": "http://127.0.0.1:4566"
+  },
+  "rateLimit": {
+    "global": {
+      "max": 10000,
+      "timeWindow": 60000
+    },
+    "register": {
+      "max": 1000,
+      "timeWindow": 600000
+    },
+    "login": {
+      "max": 1000,
+      "timeWindow": 600000
+    },
+    "logout": {
+      "max": 1000,
+      "timeWindow": 60000
+    },
+    "refreshToken": {
+      "max": 1000,
+      "timeWindow": 60000
+    },
+    "profile": {
+      "max": 1000,
+      "timeWindow": 60000
+    },
+    "accountDeletion": {
+      "max": 1000,
+      "timeWindow": 3600000
+    },
+    "passwordReset": {
+      "max": 1000,
+      "timeWindow": 600000
+    },
+    "uploadImage": {
+      "max": 1000,
+      "timeWindow": 60000
+    }
+  },
+  "database": {
+    "url": "postgres://postgres:postgres@localhost:5432/postgres"
+  },
+  "cookie": {
+    "secret": "12345678901a"
+  },
+  "resend": {
+    "apiKey": "dummy-resend-key"
+  },
+  "emailQueueName": "send-email-test",
+  "token": {
+    "access": {
+      "secret": "12321313423565365654546654121890008a"
+    },
+    "refresh": {
+      "secret": "12321313423565365654546654121890008b"
+    }
+  }
+}

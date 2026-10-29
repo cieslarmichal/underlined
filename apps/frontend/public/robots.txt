@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /profile
+Disallow: /new-password
+Disallow: /verify-email
+
+# Sitemap
+Sitemap: https://underlined.com/sitemap.xml

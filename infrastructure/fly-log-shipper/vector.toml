@@ -1,0 +1,95 @@
+[api]
+  enabled = true
+  address = "0.0.0.0:8686"
+
+[sources.fly_log_metrics]
+  type = "internal_metrics"
+
+[sources.nats]
+  type = "nats"
+  url = "nats://[fdaa::3]:4223"
+  queue = "${QUEUE-}"
+  subject = "${SUBJECT-logs.>}"
+  auth.strategy = "user_password"
+  auth.user_password.user = "${ORG-personal}"
+  auth.user_password.password = "${ACCESS_TOKEN?}"
+  connection_name = "Fly logs stream"
+
+[transforms.parse_and_label]
+  type = "remap"
+  inputs = ["nats"]
+  source = '''
+    fly = parse_json!(.message)
+
+    # Whitelist: keep only logs from our app whose payload is valid Pino JSON.
+    # Drops Fly infrastructure noise: kernel/firecracker/init lifecycle, fly
+    # proxy errors ([PU02] etc.), health checks, SSH banner, etc.
+    pino, err = parse_json(fly.message)
+    if err != null {
+      abort
+    }
+    if !is_object(pino) {
+      abort
+    }
+    if !is_integer(pino.level) {
+      abort
+    }
+
+    .app    = fly.fly.app.name
+    .region = fly.fly.region
+
+    # Spread all Pino fields, then override/add what we need
+    . = merge!(., pino)
+
+    level_num = to_int(pino.level) ?? 0
+    if level_num >= 60 {
+      .level = "fatal"
+    } else if level_num >= 50 {
+      .level = "error"
+    } else if level_num >= 40 {
+      .level = "warn"
+    } else if level_num >= 30 {
+      .level = "info"
+    } else if level_num >= 20 {
+      .level = "debug"
+    } else if level_num >= 10 {
+      .level = "trace"
+    } else {
+      .level = "info"
+    }
+
+    .message = pino.msg
+
+    del(.msg)         # duplicate of .message
+    del(.time)        # redundant — Loki has its own timestamp
+    del(.source_type) # Vector internal
+    del(.subject)     # NATS metadata
+    del(.fly)         # full Fly.io metadata object
+    del(.host)
+    del(.log)
+    del(.event)
+    del(.region)
+  '''
+
+[sinks.fly_log_metrics_prometheus]
+  type = "prometheus_exporter"
+  inputs = ["fly_log_metrics"]
+  address = "0.0.0.0:9598"
+  default_namespace = "fly-logs"
+
+[sinks.loki]
+  type = "loki"
+  inputs = ["parse_and_label"]
+  endpoint = "${GRAFANA_LOKI_URL}"
+
+  [sinks.loki.auth]
+    strategy = "basic"
+    user = "${GRAFANA_LOKI_USERNAME}"
+    password = "${GRAFANA_LOKI_PASSWORD}"
+
+  [sinks.loki.encoding]
+    codec = "json"
+
+  [sinks.loki.labels]
+    app   = "{{ app }}"
+    level = "{{ level }}"

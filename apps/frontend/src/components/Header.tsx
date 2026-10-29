@@ -1,0 +1,92 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { site } from '../config';
+import { LogOut, User } from 'lucide-react';
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarTrigger } from '@/components/ui/Menubar';
+import { Button } from './ui/Button';
+import { Skeleton } from './ui/Skeleton';
+
+export default function Header() {
+  const { userData, userDataInitialized } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const initial = (userData?.email?.[0] || 'U').toUpperCase();
+
+  return (
+    <header className="sticky top-0 z-50 bg-background border-b border-border">
+      <div className="max-w-350 mx-auto flex items-center px-4 lg:px-6 py-3">
+        <div className="w-48 flex items-center">
+          <Link
+            to={'/'}
+            className="flex items-center gap-3 group"
+          >
+            <div className="h-9 w-9 bg-primary rounded-md flex items-center justify-center transition-transform group-hover:scale-105">
+              <span className="text-primary-foreground font-bold text-lg">{site.initials}</span>
+            </div>
+            <span className="hidden sm:block text-xl font-bold text-foreground tracking-tight whitespace-nowrap">
+              {site.name}
+            </span>
+          </Link>
+        </div>
+
+        <div className="flex-1 flex items-center justify-end gap-4">
+          {!userDataInitialized ? (
+            <div className="flex items-center gap-2 lg:gap-3">
+              <Skeleton className="h-10 w-10 rounded-full bg-muted" />
+            </div>
+          ) : userData ? (
+            <div className="flex justify-end">
+              <Menubar className="rounded-none space-x-0 border-none data-[state=open]:!bg-none">
+                <MenubarMenu>
+                  <MenubarTrigger
+                    omitOpenBg
+                    className="h-10 w-10 rounded-full overflow-hidden bg-white border-2 border-gray-300 hover:border-gray-900 data-[state=open]:border-gray-900 data-[state=open]:shadow-md ring-2 ring-transparent hover:ring-gray-100 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 p-0 cursor-pointer focus:bg-transparent data-[state=open]:bg-transparent relative group"
+                  >
+                    <span className="h-full w-full flex items-center justify-center text-sm font-bold text-gray-900 select-none group-hover:text-gray-700 transition-colors">
+                      {initial}
+                    </span>
+                  </MenubarTrigger>
+                  <MenubarContent>
+                    <MenubarItem
+                      onClick={() => navigate('/profile')}
+                      className="cursor-pointer flex items-center gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      My Profile
+                    </MenubarItem>
+                    <MenubarItem
+                      onClick={() => navigate('/logout')}
+                      className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Log out
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            </div>
+          ) : (
+            <div className="min-w-[120px] flex items-center gap-3 justify-end">
+              <Button
+                variant="link"
+                size="lg"
+                onClick={() => navigate('/login')}
+                className="text-sm font-medium"
+              >
+                Sign In
+              </Button>
+              <Button
+                size="lg"
+                onClick={() => navigate('/register')}
+                className="text-sm font-semibold rounded-md"
+              >
+                Sign Up
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}

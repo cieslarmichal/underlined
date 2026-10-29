@@ -1,0 +1,39 @@
+{
+  "name": "underlined",
+  "scripts": {
+    "build": "turbo run build",
+    "build:dev": "turbo run build:dev",
+    "test": "turbo run test:ci --concurrency 5",
+    "lint": "turbo run lint --concurrency 5",
+    "lint:fix": "turbo run lint:fix"
+  },
+  "dependencies": {
+    "drizzle-kit": "0.31.10",
+    "drizzle-orm": "0.45.2"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@types/node": "26.1.2",
+    "eslint": "10.8.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-perfectionist": "5.10.0",
+    "prettier": "3.9.6",
+    "turbo": "2.10.7",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "4.1.10"
+  },
+  "volta": {
+    "node": "26.5.0",
+    "npm": "12.0.1"
+  },
+  "engines": {
+    "node": ">=26",
+    "npm": ">=12"
+  },
+  "workspaces": [
+    "apps/*",
+    "tools/*"
+  ],
+  "packageManager": "npm@12.0.1"
+}
