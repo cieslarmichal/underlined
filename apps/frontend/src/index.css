@@ -11,6 +11,11 @@ body {
   overscroll-behavior: none;
 }
 
+/* Reserve space for the scrollbar so the layout does not shift between short and long pages. */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* iOS zooms the page on focus when an input font is smaller than 16px. */
 input,
 select,
