@@ -1,5 +1,5 @@
 import { BookOpen, LayoutGrid, Library } from 'lucide-react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { matchPath, NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { cn } from '@/lib/utils';
 import { getLastBookId } from '../lib/lastBook';
@@ -12,8 +12,9 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
 
 // Layout of the signed-in app: content above a bottom navigation like in a native app.
 export default function AppShell() {
-  const lastBookId = getLastBookId();
   const { pathname } = useLocation();
+  // The page stores the last book in an effect, so on the first render of a book page read it from the URL.
+  const lastBookId = matchPath('/books/:id/*', pathname)?.params.id ?? getLastBookId();
 
   return (
     <>
