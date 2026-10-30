@@ -7,13 +7,13 @@ export default function LoginPage() {
   useSEO({ title: `Sign In - ${site.name}`, description: `Sign in to your ${site.name} account.` });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center pt-32">
+    <div className="min-h-[calc(100dvh-65px)] bg-background flex justify-center pt-12 sm:pt-24">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center pb-3">
-          <h2 className="text-3xl font-bold text-black leading-tight tracking-tight">Log into your account</h2>
+          <h2 className="font-serif text-3xl font-semibold text-foreground leading-tight tracking-tight">Log into your account</h2>
         </div>
 
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <LoginForm />
           <div className="mt-4 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}

@@ -87,7 +87,7 @@ export default function BoardPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="mb-1 text-2xl font-bold">Words</h1>
+      <h1 className="mb-1 font-serif text-3xl font-semibold tracking-tight">Words</h1>
       {summary.data && summary.data.totalWords > 0 && (
         <p className="mb-4 text-sm text-muted-foreground">
           This week: {summary.data.newWords} new {summary.data.newWords === 1 ? 'word' : 'words'}.{' '}

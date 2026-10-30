@@ -52,7 +52,7 @@ export default function RememberCard({ bookId, onKnown }: Props) {
   return (
     <section
       aria-label="A word to remember"
-      className="mb-4 rounded-xl border bg-secondary/60 p-4"
+      className="mb-4 rounded-2xl border border-highlight/60 bg-highlight-soft/60 p-4"
     >
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Remember this?</h2>
@@ -70,7 +70,7 @@ export default function RememberCard({ bookId, onKnown }: Props) {
         {card.sentences.map(({ sentence, surfaceForm }) => (
           <li
             key={sentence}
-            className="text-base leading-relaxed"
+            className="font-serif text-lg leading-relaxed"
           >
             <HighlightedSentence
               sentence={sentence}

@@ -13,13 +13,13 @@ export default function RegisterPage() {
 
   if (isRegistrationSuccess) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center pt-32">
+      <div className="min-h-[calc(100dvh-65px)] bg-background flex justify-center pt-12 sm:pt-24">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center pb-3">
-            <h2 className="text-3xl font-bold text-black leading-tight tracking-tight">Check your email</h2>
+            <h2 className="font-serif text-3xl font-semibold text-foreground leading-tight tracking-tight">Check your email</h2>
           </div>
 
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl p-8">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
             <div className="text-center space-y-6">
               <div className="space-y-4">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto border border-gray-200">
@@ -59,13 +59,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center pt-32">
+    <div className="min-h-[calc(100dvh-65px)] bg-background flex justify-center pt-12 sm:pt-24">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center pb-3">
-          <h2 className="text-3xl font-bold text-black leading-tight tracking-tight">Create Account</h2>
+          <h2 className="font-serif text-3xl font-semibold text-foreground leading-tight tracking-tight">Create Account</h2>
         </div>
 
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl p-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <RegisterForm onSuccess={() => setIsRegistrationSuccess(true)} />
           <div className="mt-4 text-center text-sm text-gray-600">
             Already have an account?{' '}

@@ -15,7 +15,7 @@ export default function Header() {
   const initial = (userData?.email?.[0] || 'U').toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="max-w-350 mx-auto flex items-center px-4 lg:px-6 py-3">
         <div className="w-48 flex items-center">
           <Link
@@ -41,7 +41,7 @@ export default function Header() {
                 <MenubarMenu>
                   <MenubarTrigger
                     omitOpenBg
-                    className="h-10 w-10 rounded-full overflow-hidden bg-white border-2 border-gray-300 hover:border-gray-900 data-[state=open]:border-gray-900 data-[state=open]:shadow-md ring-2 ring-transparent hover:ring-gray-100 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 p-0 cursor-pointer focus:bg-transparent data-[state=open]:bg-transparent relative group"
+                    className="relative h-10 w-10 cursor-pointer overflow-hidden rounded-full border border-border bg-card p-0 shadow-xs transition-colors hover:border-foreground/30 focus:bg-card data-[state=open]:border-foreground/40 data-[state=open]:bg-card"
                   >
                     <span className="h-full w-full flex items-center justify-center text-sm font-bold text-gray-900 select-none group-hover:text-gray-700 transition-colors">
                       {initial}

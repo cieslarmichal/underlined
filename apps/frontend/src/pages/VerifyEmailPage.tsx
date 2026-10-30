@@ -186,7 +186,7 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center pt-32">
+    <div className="min-h-[calc(100dvh-65px)] bg-background flex justify-center pt-12 sm:pt-24">
       <div className="w-full max-w-md space-y-6 px-6">
         <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">{renderContent()}</div>
       </div>

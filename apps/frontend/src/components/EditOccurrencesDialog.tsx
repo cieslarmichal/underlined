@@ -62,7 +62,7 @@ function OccurrenceEditor({ occurrence, onSaved }: { occurrence: WordOccurrence;
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-muted-foreground">
+      <p className="font-serif text-base leading-relaxed text-muted-foreground">
         <HighlightedSentence
           sentence={occurrence.sentence}
           word={occurrence.surfaceForm}

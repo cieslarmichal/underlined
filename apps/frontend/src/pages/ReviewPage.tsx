@@ -124,11 +124,11 @@ export default function ReviewPage() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100dvh-65px-3.5rem-env(safe-area-inset-bottom))] max-w-2xl flex-col px-4 py-6">
-      <h1 className="mb-4 text-2xl font-bold">
+      <h1 className="mb-4 font-serif text-3xl font-semibold tracking-tight">
         {capture.items.length} {capture.items.length === 1 ? 'word' : 'words'} found
       </h1>
 
-      <ul className="divide-y rounded-xl border bg-card">
+      <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-xs">
         {capture.items.map((item) => (
           <li
             key={item.lemma}

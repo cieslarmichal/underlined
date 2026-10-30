@@ -140,7 +140,7 @@ export default function MyProfilePage() {
     <div className="min-h-[calc(100vh-72px)] bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">My Profile</h1>
+          <h1 className="font-serif text-3xl font-semibold text-gray-900 mb-1">My Profile</h1>
           <p className="text-gray-500">Manage your account information and settings</p>
         </div>
 

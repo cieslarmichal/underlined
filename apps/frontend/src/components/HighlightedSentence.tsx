@@ -14,7 +14,7 @@ export default function HighlightedSentence({ sentence, word }: Props) {
   return (
     <>
       {sentence.slice(0, index)}
-      <mark className="rounded-sm bg-yellow-200/70 px-0.5 font-semibold text-foreground underline decoration-foreground/60">
+      <mark className="rounded-[3px] bg-transparent bg-[linear-gradient(to_top,var(--highlight)_58%,transparent_58%)] px-0.5 font-semibold text-inherit">
         {sentence.slice(index, index + word.length)}
       </mark>
       {sentence.slice(index + word.length)}

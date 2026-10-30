@@ -76,7 +76,7 @@ export default function BrowsePage() {
           <Skeleton className="h-7 w-56" />
         ) : (
           <>
-            <h1 className="text-xl font-bold">Your words in {book.data?.title}</h1>
+            <h1 className="font-serif text-2xl font-semibold leading-tight">Your words in {book.data?.title}</h1>
             <p className="text-sm text-muted-foreground">
               {entries.length} {entries.length === 1 ? 'sentence' : 'sentences'}, in the order you met them
             </p>
@@ -96,7 +96,7 @@ export default function BrowsePage() {
       {current && (
         <article className="flex flex-1 flex-col justify-center">
           <div className="rounded-2xl border bg-card p-6">
-            <p className="text-lg leading-relaxed">
+            <p className="font-serif text-xl leading-relaxed">
               <HighlightedSentence
                 sentence={current.occurrence.sentence}
                 word={current.occurrence.surfaceForm}

@@ -38,61 +38,78 @@ body {
 }
 
 :root {
-  /* Pure monochrome palette */
-  --background: oklch(1 0 0); /* Pure white */
-  --foreground: oklch(0.15 0 0); /* Almost black */
-  --card: oklch(1 0 0); /* White */
-  --card-foreground: oklch(0.15 0 0); /* Almost black */
-  --popover: oklch(1 0 0); /* White */
-  --popover-foreground: oklch(0.15 0 0); /* Almost black */
+  /* Warm paper background, ink text and a highlighter-yellow accent: the look of a well-used paperback. */
+  --background: oklch(0.982 0.007 88);
+  --foreground: oklch(0.205 0.012 65);
+  --card: oklch(0.999 0.003 88);
+  --card-foreground: oklch(0.205 0.012 65);
+  --popover: oklch(0.999 0.003 88);
+  --popover-foreground: oklch(0.205 0.012 65);
 
-  /* Primary: Black & White theme */
-  --primary: oklch(0.15 0 0); /* Almost black */
-  --primary-foreground: oklch(1 0 0); /* White */
+  /* Primary: ink */
+  --primary: oklch(0.215 0.012 65);
+  --primary-foreground: oklch(0.985 0.005 88);
 
-  /* Secondary: Light gray */
-  --secondary: oklch(0.96 0 0); /* Very light gray */
-  --secondary-foreground: oklch(0.15 0 0); /* Almost black */
+  --secondary: oklch(0.955 0.01 88);
+  --secondary-foreground: oklch(0.215 0.012 65);
 
-  /* Muted: Mid gray */
-  --muted: oklch(0.96 0 0); /* Light gray */
-  --muted-foreground: oklch(0.5 0 0); /* Mid gray */
+  --muted: oklch(0.955 0.01 88);
+  --muted-foreground: oklch(0.5 0.016 70);
 
-  /* Accent: Light gray for hover states */
-  --accent: oklch(0.96 0 0); /* Light gray */
-  --accent-foreground: oklch(0.15 0 0); /* Almost black */
+  --accent: oklch(0.945 0.015 90);
+  --accent-foreground: oklch(0.215 0.012 65);
 
-  /* Destructive: Keep red for errors */
-  --destructive: oklch(0.55 0.22 25); /* Red */
-  --destructive-foreground: oklch(1 0 0); /* White */
+  /* Highlighter: marks the underlined word and the active tab */
+  --highlight: oklch(0.9 0.16 98);
+  --highlight-soft: oklch(0.96 0.07 98);
+  --highlight-foreground: oklch(0.3 0.06 85);
 
-  /* Borders and inputs */
-  --border: oklch(0.9 0 0); /* Light gray border */
-  --input: oklch(0.9 0 0); /* Light gray */
-  --ring: oklch(0.15 0 0); /* Black focus ring */
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(1 0 0);
 
-  /* Charts - grayscale */
-  --chart-1: oklch(0.25 0 0);
-  --chart-2: oklch(0.4 0 0);
-  --chart-3: oklch(0.55 0 0);
-  --chart-4: oklch(0.7 0 0);
-  --chart-5: oklch(0.85 0 0);
+  --border: oklch(0.905 0.012 88);
+  --input: oklch(0.88 0.014 88);
+  --ring: oklch(0.45 0.05 75);
 
-  /* Border radius - more modern/sharp */
-  --radius: 0.5rem;
+  --chart-1: oklch(0.25 0.01 65);
+  --chart-2: oklch(0.4 0.01 65);
+  --chart-3: oklch(0.55 0.01 65);
+  --chart-4: oklch(0.7 0.01 65);
+  --chart-5: oklch(0.85 0.01 65);
 
-  /* Sidebar */
-  --sidebar: oklch(0.98 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.15 0 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.96 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.9 0 0);
-  --sidebar-ring: oklch(0.15 0 0);
+  --radius: 0.75rem;
+
+  --sidebar: oklch(0.975 0.008 88);
+  --sidebar-foreground: oklch(0.205 0.012 65);
+  --sidebar-primary: oklch(0.215 0.012 65);
+  --sidebar-primary-foreground: oklch(0.985 0.005 88);
+  --sidebar-accent: oklch(0.955 0.01 88);
+  --sidebar-accent-foreground: oklch(0.215 0.012 65);
+  --sidebar-border: oklch(0.905 0.012 88);
+  --sidebar-ring: oklch(0.45 0.05 75);
+}
+
+@theme {
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  /* The starter pages use gray-*; map them to warm stone tones so everything shares one palette. */
+  --color-gray-50: oklch(0.985 0.004 88);
+  --color-gray-100: oklch(0.965 0.007 88);
+  --color-gray-200: oklch(0.925 0.01 80);
+  --color-gray-300: oklch(0.87 0.013 78);
+  --color-gray-400: oklch(0.72 0.016 75);
+  --color-gray-500: oklch(0.56 0.017 70);
+  --color-gray-600: oklch(0.46 0.015 68);
+  --color-gray-700: oklch(0.38 0.013 66);
+  --color-gray-800: oklch(0.28 0.011 65);
+  --color-gray-900: oklch(0.22 0.011 65);
+  --color-gray-950: oklch(0.15 0.008 65);
 }
 
 @theme inline {
+  --color-highlight: var(--highlight);
+  --color-highlight-soft: var(--highlight-soft);
+  --color-highlight-foreground: var(--highlight-foreground);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

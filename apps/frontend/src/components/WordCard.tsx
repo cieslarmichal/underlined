@@ -20,7 +20,7 @@ export default function WordCard({ word, onEdit, onDelete, onToggleKnown }: Prop
   const showMeaningPerSentence = meanings.length > 1;
 
   return (
-    <article className="rounded-xl border bg-card p-4">
+    <article className="rounded-2xl border bg-card p-4 shadow-xs">
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <h2 className="font-semibold">
@@ -79,7 +79,7 @@ export default function WordCard({ word, onEdit, onDelete, onToggleKnown }: Prop
               key={occurrence.id}
               className="border-l-2 pl-3"
             >
-              <p className="text-sm">
+              <p className="font-serif text-base leading-relaxed">
                 <HighlightedSentence
                   sentence={occurrence.sentence}
                   word={occurrence.surfaceForm}

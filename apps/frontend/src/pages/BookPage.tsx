@@ -118,7 +118,9 @@ export default function BookPage() {
             <Skeleton className="h-8 w-48" />
           ) : (
             <>
-              <h1 className="line-clamp-2 text-2xl font-bold">{book.data?.title}</h1>
+              <h1 className="line-clamp-2 font-serif text-3xl font-semibold leading-tight tracking-tight">
+                {book.data?.title}
+              </h1>
               {book.data?.author && <p className="text-sm text-muted-foreground">{book.data.author}</p>}
             </>
           )}
@@ -182,15 +184,16 @@ export default function BookPage() {
         {words.loading && <Skeleton className="h-40 w-full rounded-xl" />}
 
         {words.data?.length === 0 && (
-          <div className="rounded-xl border border-dashed p-8 text-center">
-            <p className="font-medium">No words yet</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Underline unknown words in your book with a pencil and take a photo of the page.
+          <div className="rounded-2xl border border-dashed bg-card/60 p-6 text-center">
+            <p className="font-serif text-xl font-semibold">Your first page</p>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              Underline a few words you do not know with a pencil, then photograph the page. For the best result hold
+              the phone straight above the page, in good light.
             </p>
           </div>
         )}
 
-        <ul className="divide-y rounded-xl border bg-card">
+        <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-xs empty:hidden">
           {words.data?.map((word) => (
             <li
               key={word.id}

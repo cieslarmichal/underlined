@@ -8,10 +8,6 @@ export const site = {
   name: 'Underlined',
   description: 'Photograph the words you underlined in a paper book and get their meaning in context.',
   url: 'https://underlined.com',
-  contactEmail: 'contact@underlined.com',
-  githubUrl: 'https://github.com/cieslarmichal/underlined',
-  author: 'Michał Cieślar',
-  authorUrl: 'https://github.com/cieslarmichal',
 } as const;
 
 const appConfig = {
