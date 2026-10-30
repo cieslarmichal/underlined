@@ -24,6 +24,27 @@ const steps = [
   },
 ];
 
+const examples = [
+  {
+    pair: 'EN → PL',
+    sentence: 'They had a picnic on the bank of the river.',
+    word: 'bank',
+    lemma: 'bank',
+    meaning: 'brzeg',
+    note: 'Nie „bank”: znaczenie wynika z tego zdania.',
+    tilt: 'lg:-rotate-1',
+  },
+  {
+    pair: 'ES → PL',
+    sentence: 'El viento susurraba entre los árboles.',
+    word: 'susurraba',
+    lemma: 'susurrar',
+    meaning: 'szeptać',
+    note: 'Forma podstawowa i znaczenie od razu.',
+    tilt: 'lg:rotate-1 lg:ml-8',
+  },
+];
+
 export default function HomePage() {
   useSEO({ title: site.name, description: site.description, canonical: site.url });
 
@@ -56,23 +77,36 @@ export default function HomePage() {
               <Link to="/login">Sign in</Link>
             </Button>
           </div>
+          <p className="mt-5 text-sm text-muted-foreground">
+            English and Spanish books, with meanings in Polish or English.
+          </p>
         </div>
 
-        <figure
-          aria-label="Example of a saved word"
-          className="rotate-1 rounded-2xl border bg-card p-6 shadow-[0_12px_40px_-16px_rgba(60,40,0,0.25)]"
-        >
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">From your book</p>
-          <blockquote className="mt-3 font-serif text-2xl leading-relaxed">
-            <HighlightedSentence
-              sentence="El viento susurraba entre los árboles."
-              word="susurraba"
-            />
-          </blockquote>
-          <p className="mt-5 border-t pt-4 text-base">
-            <span className="font-semibold">susurrar</span> <span className="text-muted-foreground">→</span> to whisper
-          </p>
-        </figure>
+        <div className="space-y-5">
+          {examples.map(({ pair, sentence, word, lemma, meaning, note, tilt }) => (
+            <figure
+              key={pair}
+              aria-label={`Example of a saved word, ${pair}`}
+              className={`rounded-2xl border bg-card p-6 shadow-[0_12px_40px_-18px_rgba(60,40,0,0.25)] ${tilt}`}
+            >
+              <figcaption className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <span>From your book</span>
+                <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-highlight-foreground">{pair}</span>
+              </figcaption>
+              <blockquote className="mt-3 font-serif text-2xl leading-relaxed">
+                <HighlightedSentence
+                  sentence={sentence}
+                  word={word}
+                />
+              </blockquote>
+              <p className="mt-5 border-t pt-4 text-base">
+                <span className="font-semibold">{lemma}</span> <span className="text-muted-foreground">→</span>{' '}
+                <span className="font-semibold">{meaning}</span>
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{note}</p>
+            </figure>
+          ))}
+        </div>
       </section>
 
       <section className="mt-24">
