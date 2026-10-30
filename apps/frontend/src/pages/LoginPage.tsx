@@ -13,13 +13,13 @@ export default function LoginPage() {
           <h2 className="font-serif text-3xl font-semibold text-foreground leading-tight tracking-tight">Log into your account</h2>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <div className="bg-card rounded-2xl border border-gray-100 shadow-sm p-8">
           <LoginForm />
           <div className="mt-4 text-center text-sm text-gray-600">
             Don&apos;t have an account?{' '}
             <Link
               to="/register"
-              className="text-black font-semibold hover:underline"
+              className="text-foreground font-semibold hover:underline"
             >
               Sign Up
             </Link>

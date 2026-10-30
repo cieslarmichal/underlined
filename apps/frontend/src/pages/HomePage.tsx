@@ -24,26 +24,17 @@ const steps = [
   },
 ];
 
-const examples = [
-  {
-    pair: 'EN → PL',
-    sentence: 'They had a picnic on the bank of the river.',
-    word: 'bank',
-    lemma: 'bank',
-    meaning: 'brzeg',
-    note: 'Nie „bank”: znaczenie wynika z tego zdania.',
-    tilt: 'lg:-rotate-1',
-  },
-  {
-    pair: 'ES → PL',
-    sentence: 'El viento susurraba entre los árboles.',
-    word: 'susurraba',
-    lemma: 'susurrar',
-    meaning: 'szeptać',
-    note: 'Forma podstawowa i znaczenie od razu.',
-    tilt: 'lg:rotate-1 lg:ml-8',
-  },
-];
+// The exact opening sentence of a public-domain book.
+const example = {
+  pair: 'EN → PL',
+  sentence:
+    'Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?”',
+  word: 'bank',
+  lemma: 'bank',
+  meaning: 'brzeg',
+  note: 'Nie „bank”: znaczenie wynika z tego zdania.',
+  source: 'Lewis Carroll, Alice’s Adventures in Wonderland (1865)',
+};
 
 export default function HomePage() {
   useSEO({ title: site.name, description: site.description, canonical: site.url });
@@ -82,49 +73,47 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="space-y-5">
-          {examples.map(({ pair, sentence, word, lemma, meaning, note, tilt }) => (
-            <figure
-              key={pair}
-              aria-label={`Example of a saved word, ${pair}`}
-              className={`rounded-2xl border bg-card p-6 shadow-[0_12px_40px_-18px_rgba(60,40,0,0.25)] ${tilt}`}
-            >
-              <figcaption className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                <span>From your book</span>
-                <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-highlight-foreground">{pair}</span>
-              </figcaption>
-              <blockquote className="mt-3 font-serif text-2xl leading-relaxed">
-                <HighlightedSentence
-                  sentence={sentence}
-                  word={word}
-                />
-              </blockquote>
-              <p className="mt-5 border-t pt-4 text-base">
-                <span className="font-semibold">{lemma}</span> <span className="text-muted-foreground">→</span>{' '}
-                <span className="font-semibold">{meaning}</span>
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">{note}</p>
-            </figure>
-          ))}
-        </div>
+        <figure
+          aria-label={`Example of a saved word, ${example.pair}`}
+          className="rounded-2xl border bg-card p-6 shadow-[0_12px_40px_-18px_rgba(60,40,0,0.25)] lg:-rotate-1"
+        >
+          <figcaption className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <span>From a real book</span>
+            <span className="rounded-full bg-highlight-soft px-2.5 py-1 text-highlight-foreground">{example.pair}</span>
+          </figcaption>
+          <blockquote className="mt-3 font-serif text-xl leading-relaxed sm:text-2xl">
+            <HighlightedSentence
+              sentence={example.sentence}
+              word={example.word}
+            />
+          </blockquote>
+          <p className="mt-2 text-xs italic text-muted-foreground">— {example.source}</p>
+          <p className="mt-5 border-t pt-4 text-base">
+            <span className="font-semibold">{example.lemma}</span> <span className="text-muted-foreground">→</span>{' '}
+            <span className="font-semibold">{example.meaning}</span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{example.note}</p>
+        </figure>
       </section>
 
-      <section className="mt-24">
+      <section className="mt-16 sm:mt-24">
         <h2 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">How it works</h2>
         <ol className="mt-8 grid gap-6 sm:grid-cols-3">
           {steps.map(({ icon: Icon, title, text }, index) => (
             <li
               key={title}
-              className="rounded-2xl border bg-card p-6"
+              className="flex items-start gap-4 rounded-2xl border bg-card p-5"
             >
-              <div className="flex items-center gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full bg-highlight text-highlight-foreground">
-                  <Icon className="size-5" />
-                </span>
-                <span className="text-sm font-medium text-muted-foreground">Step {index + 1}</span>
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-highlight text-highlight-foreground">
+                <Icon className="size-5" />
+              </span>
+              <div>
+                <h3 className="text-base font-semibold">
+                  <span className="sr-only">Step {index + 1}: </span>
+                  {title}
+                </h3>
+                <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
               </div>
-              <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
             </li>
           ))}
         </ol>

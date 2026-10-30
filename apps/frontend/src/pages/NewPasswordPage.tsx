@@ -137,7 +137,7 @@ export default function NewPasswordPage() {
           <p className="text-gray-600 mt-2">Enter a new password for your account</p>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+        <div className="bg-card rounded-xl border border-gray-200 shadow-lg p-6">
           {!isCheckingToken && !isTokenValid ? (
             <ErrorStep
               title="Invalid reset link"

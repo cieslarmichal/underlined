@@ -17,7 +17,7 @@ const tiles: Tile[] = [
     description: 'Manage registered accounts, view roles and verification status',
     icon: <Users className="w-6 h-6" />,
     href: '/admin/users',
-    color: 'bg-black-50 text-black-700',
+    color: 'bg-secondary text-foreground',
   },
 ];
 
@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
             <button
               key={tile.href}
               onClick={() => navigate(tile.href)}
-              className="group text-left bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200 p-6 cursor-pointer"
+              className="group text-left bg-card rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-200 p-6 cursor-pointer"
             >
               <div className={`inline-flex p-3 rounded-xl mb-4 ${tile.color}`}>{tile.icon}</div>
               <h2 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-primary transition-colors">

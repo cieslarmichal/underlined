@@ -86,10 +86,10 @@ export default function VerifyEmailPage() {
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
-              <Loader2 className="h-6 w-6 text-black animate-spin" />
+              <Loader2 className="h-6 w-6 text-foreground animate-spin" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-black">Verifying account...</h2>
+              <h2 className="text-2xl font-bold text-foreground">Verifying account...</h2>
             </div>
           </div>
           <p className="text-gray-600">Please wait while we verify your account.</p>
@@ -124,7 +124,7 @@ export default function VerifyEmailPage() {
       return (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-black mb-2">Verification failed</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Verification failed</h2>
             <p className="text-gray-600">The verification link has expired or is invalid.</p>
           </div>
           {!showResendForm ? (
@@ -188,7 +188,7 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-[calc(100dvh-65px)] bg-background flex justify-center pt-12 sm:pt-24">
       <div className="w-full max-w-md space-y-6 px-6">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">{renderContent()}</div>
+        <div className="bg-card rounded-xl border border-gray-200 shadow-lg p-6">{renderContent()}</div>
       </div>
     </div>
   );

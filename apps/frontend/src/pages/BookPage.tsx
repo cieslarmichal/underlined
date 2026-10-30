@@ -156,7 +156,7 @@ export default function BookPage() {
       {pendingCaptures.length > 0 && (
         <Link
           to={`/books/${id}/review/${pendingCaptures[0]?.id ?? ''}`}
-          className="mb-4 block rounded-xl border border-yellow-300 bg-yellow-50 p-3 text-sm font-medium"
+          className="mb-4 block rounded-xl border border-highlight/70 bg-highlight-soft p-3 text-sm font-medium"
         >
           {pendingCaptures.length} {pendingCaptures.length === 1 ? 'photo is' : 'photos are'} waiting for your approval
           →

@@ -431,8 +431,8 @@ export default function MyProfilePage() {
               <Card>
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 rounded-lg">
-                      <Trash2 className="w-5 h-5 text-red-600" />
+                    <div className="p-2 bg-destructive/10 rounded-lg">
+                      <Trash2 className="w-5 h-5 text-destructive" />
                     </div>
                     <div>
                       <CardTitle>Delete Account</CardTitle>
@@ -442,9 +442,9 @@ export default function MyProfilePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                      <p className="text-sm font-medium text-red-800 mb-2">Deleting your account will:</p>
-                      <ul className="text-sm text-red-700 list-disc list-inside space-y-1">
+                    <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
+                      <p className="text-sm font-medium text-destructive mb-2">Deleting your account will:</p>
+                      <ul className="text-sm text-destructive list-disc list-inside space-y-1">
                         <li>Permanently remove all your data</li>
                         <li>Revoke access to the platform</li>
                         <li>Cannot be undone</li>
@@ -475,9 +475,9 @@ export default function MyProfilePage() {
                             permanently remove all your data.
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 my-2">
-                          <p className="text-sm font-medium text-red-800">This action cannot be undone!</p>
-                          <p className="text-sm text-red-700 mt-1">All your data will be permanently deleted.</p>
+                        <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 my-2">
+                          <p className="text-sm font-medium text-destructive">This action cannot be undone!</p>
+                          <p className="text-sm text-destructive mt-1">All your data will be permanently deleted.</p>
                         </div>
                         <div className="flex gap-3 pt-2">
                           <Button

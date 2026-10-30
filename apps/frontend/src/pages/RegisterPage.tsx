@@ -19,12 +19,12 @@ export default function RegisterPage() {
             <h2 className="font-serif text-3xl font-semibold text-foreground leading-tight tracking-tight">Check your email</h2>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <div className="bg-card rounded-2xl border border-gray-100 shadow-sm p-8">
             <div className="text-center space-y-6">
               <div className="space-y-4">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto border border-gray-200">
                   <svg
-                    className="w-8 h-8 text-black"
+                    className="w-8 h-8 text-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -37,7 +37,7 @@ export default function RegisterPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-black">Confirm your email</h3>
+                <h3 className="text-xl font-semibold text-foreground">Confirm your email</h3>
                 <p className="text-gray-600">
                   We sent a confirmation link to your inbox. Click it to activate your account, then sign in.
                 </p>
@@ -65,13 +65,13 @@ export default function RegisterPage() {
           <h2 className="font-serif text-3xl font-semibold text-foreground leading-tight tracking-tight">Create Account</h2>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <div className="bg-card rounded-2xl border border-gray-100 shadow-sm p-8">
           <RegisterForm onSuccess={() => setIsRegistrationSuccess(true)} />
           <div className="mt-4 text-center text-sm text-gray-600">
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-black font-semibold hover:underline"
+              className="text-foreground font-semibold hover:underline"
             >
               Sign In
             </Link>

@@ -16,7 +16,7 @@ export default function ErrorStep({ title, message, buttonText, onButtonClick }:
           <AlertCircle className="h-6 w-6 text-destructive" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-black">{title}</h2>
+          <h2 className="text-2xl font-bold text-foreground">{title}</h2>
         </div>
       </div>
       <p className="text-gray-600">{message}</p>

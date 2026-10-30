@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-[calc(100dvh-65px)] bg-background flex justify-center pt-12 sm:pt-24">
         <div className="w-full max-w-md space-y-6 px-6">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+          <div className="bg-card rounded-xl border border-gray-200 shadow-lg p-6">
             <EmailConfirmationStep
               title="Reset link sent"
               message="If an account exists for this email address, you will receive an email with a link to set a new password."
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
           <p className="text-gray-600 mt-2">Enter your email address to receive a password reset link</p>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+        <div className="bg-card rounded-xl border border-gray-200 shadow-lg p-6">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -139,7 +139,7 @@ export default function ForgotPasswordPage() {
               Remembered your password?{' '}
               <Link
                 to="/login"
-                className="font-semibold text-black hover:underline"
+                className="font-semibold text-foreground hover:underline"
               >
                 Sign in
               </Link>
