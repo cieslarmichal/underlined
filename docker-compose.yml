@@ -15,6 +15,7 @@ services:
       DATA_DIR: /tmp/localstack/data
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./docker/localstack/create-bucket.sh:/etc/localstack/init/ready.d/create-bucket.sh"
 
   database-postgres:
     image: postgres:17
