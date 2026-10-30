@@ -1,6 +1,6 @@
 import { Type, type FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 
-import { adminAuthorizationMiddleware, createAuthenticationMiddleware } from '../../../common/auth/authMiddleware.ts';
+import { createAuthenticationMiddleware } from '../../../common/auth/authMiddleware.ts';
 import type { TokenService } from '../../../common/auth/tokenService.ts';
 import { UnauthorizedAccessError } from '../../../common/errors/unathorizedAccessError.ts';
 import type { LoggerService } from '../../../common/logger/loggerService.ts';
@@ -14,7 +14,6 @@ import { ChangePasswordByTokenAction } from '../application/actions/changePasswo
 import { CreateUserAction } from '../application/actions/createUserAction.ts';
 import { DeleteUserAction } from '../application/actions/deleteUserAction.ts';
 import { FindUserAction } from '../application/actions/findUserAction.ts';
-import { FindUsersAction } from '../application/actions/findUsersAction.ts';
 import { LoginUserAction } from '../application/actions/loginUserAction.ts';
 import { LogoutUserAction } from '../application/actions/logoutUserAction.ts';
 import { RefreshTokenAction } from '../application/actions/refreshTokenAction.ts';
@@ -30,8 +29,6 @@ import { UserRepositoryImpl } from '../infrastructure/repositories/userRepositor
 import { UserSessionRepositoryImpl } from '../infrastructure/repositories/userSessionRepositoryImpl.ts';
 
 import {
-  adminUsersQuerySchema,
-  adminUsersResponseSchema,
   changePasswordByTokenRequestSchema,
   loginRequestSchema,
   loginResponseSchema,
@@ -45,7 +42,6 @@ import {
   validateOneTimeTokenRequestSchema,
   validateOneTimeTokenResponseSchema,
   verifyEmailRequestSchema,
-  type AdminUserDto,
   type UserDto,
 } from './userSchemas.ts';
 
@@ -62,22 +58,10 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     return {
       id: user.id,
       email: user.email,
-      role: user.role,
       isEmailVerified: user.isEmailVerified,
       isDeleted: user.isDeleted,
       nativeLanguage: user.nativeLanguage,
       dailyCaptureLimit: user.dailyCaptureLimit,
-      createdAt: user.createdAt.toISOString(),
-    };
-  };
-
-  const mapUserToAdminDto = (user: User): AdminUserDto => {
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      isEmailVerified: user.isEmailVerified,
-      isDeleted: user.isDeleted,
       createdAt: user.createdAt.toISOString(),
     };
   };
@@ -109,7 +93,6 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     databaseClient,
   );
   const findUserAction = new FindUserAction(userRepository);
-  const findUsersAction = new FindUsersAction(userRepository);
   const deleteUserAction = new DeleteUserAction(userRepository, loggerService, databaseClient);
   const loginUserAction = new LoginUserAction(
     userRepository,
@@ -477,26 +460,6 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
       });
 
       return reply.send({ valid });
-    },
-  });
-
-  fastify.get('/admin/users', {
-    schema: {
-      querystring: adminUsersQuerySchema,
-      response: {
-        200: adminUsersResponseSchema,
-      },
-    },
-    preValidation: [authenticationMiddleware, adminAuthorizationMiddleware],
-    handler: async (request, reply) => {
-      const { email, page = 1, pageSize = 20 } = request.query;
-
-      const { users: foundUsers, total } = await findUsersAction.execute({ email, page, pageSize });
-
-      return reply.send({
-        data: foundUsers.map(mapUserToAdminDto),
-        metadata: { total },
-      });
     },
   });
 };

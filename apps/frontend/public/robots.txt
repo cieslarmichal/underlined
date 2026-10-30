@@ -2,7 +2,6 @@
 User-agent: *
 Allow: /
 
-Disallow: /admin
 Disallow: /profile
 Disallow: /new-password
 Disallow: /verify-email

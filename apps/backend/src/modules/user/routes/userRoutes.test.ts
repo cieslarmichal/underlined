@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
@@ -8,11 +7,10 @@ import { closeTestServer, createTestContext } from '../../../../tests/helpers/te
 import { CryptoService } from '../../../common/crypto/cryptoService.ts';
 import { IdService } from '../../../common/id/idService.ts';
 import type { DatabaseClient } from '../../../infrastructure/database/databaseClient.ts';
-import { users } from '../../../infrastructure/database/schema.ts';
 import { OneTimeTokenRepositoryImpl } from '../infrastructure/repositories/oneTimeTokenRepositoryImpl.ts';
 import { UserRepositoryImpl } from '../infrastructure/repositories/userRepositoryImpl.ts';
 
-import type { AdminUserDto, LoginResponse, UserDto } from './userSchemas.ts';
+import type { LoginResponse, UserDto } from './userSchemas.ts';
 
 describe('User Routes Integration Tests', () => {
   let server: FastifyInstance;
@@ -75,7 +73,6 @@ describe('User Routes Integration Tests', () => {
 
       expect(body).toMatchObject({
         email: userData.email,
-        role: 'user',
       });
       expect(body.id).toBeTypeOf('string');
       expect(body.createdAt).toBeTypeOf('string');
@@ -329,7 +326,6 @@ describe('User Routes Integration Tests', () => {
 
       expect(body).toMatchObject({
         email: userData.email,
-        role: 'user',
       });
       expect(body.id).toBeTypeOf('string');
       expect(body.createdAt).toBeTypeOf('string');
@@ -634,92 +630,6 @@ describe('User Routes Integration Tests', () => {
       });
 
       expect(response.statusCode).toBe(401);
-    });
-  });
-
-  describe('GET /admin/users', () => {
-    async function makeUserAdmin(userId: string): Promise<void> {
-      await databaseClient.db.update(users).set({ role: 'admin' }).where(eq(users.id, userId));
-    }
-
-    async function loginAs(userData: { email: string; password: string }): Promise<string> {
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users/login',
-        payload: { email: userData.email, password: userData.password },
-      });
-      return response.json<LoginResponse>().accessToken;
-    }
-
-    it('should return users list for admin', async () => {
-      const adminData = { email: Generator.email(), password: Generator.password(), nativeLanguage: 'pl' };
-      await registerVerifiedUser(adminData);
-
-      const adminUser = await userRepository.findByEmail(adminData.email);
-      if (!adminUser) throw new Error('Admin user not found');
-      await makeUserAdmin(adminUser.id);
-
-      const accessToken = await loginAs(adminData);
-
-      const response = await server.inject({
-        method: 'GET',
-        url: '/admin/users',
-        headers: { authorization: `Bearer ${accessToken}` },
-      });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json<{ data: AdminUserDto[]; metadata: { total: number } }>();
-      expect(Array.isArray(body.data)).toBe(true);
-      expect(body.metadata.total).toBeTypeOf('number');
-      expect(body.metadata.total).toBeGreaterThanOrEqual(1);
-    });
-
-    it('should filter users by email', async () => {
-      const adminData = { email: Generator.email(), password: Generator.password(), nativeLanguage: 'pl' };
-      const otherData = { email: Generator.email(), password: Generator.password(), nativeLanguage: 'pl' };
-      await registerVerifiedUser(adminData);
-      await registerVerifiedUser(otherData);
-
-      const adminUser = await userRepository.findByEmail(adminData.email);
-      if (!adminUser) throw new Error('Admin user not found');
-      await makeUserAdmin(adminUser.id);
-
-      const accessToken = await loginAs(adminData);
-
-      const response = await server.inject({
-        method: 'GET',
-        url: `/admin/users?email=${encodeURIComponent(adminData.email)}`,
-        headers: { authorization: `Bearer ${accessToken}` },
-      });
-
-      expect(response.statusCode).toBe(200);
-      const body = response.json<{ data: AdminUserDto[]; metadata: { total: number } }>();
-      expect(body.data).toHaveLength(1);
-      expect(body.data[0]?.email).toBe(adminData.email);
-    });
-
-    it('should return 401 when not authenticated', async () => {
-      const response = await server.inject({
-        method: 'GET',
-        url: '/admin/users',
-      });
-
-      expect(response.statusCode).toBe(401);
-    });
-
-    it('should return 403 for regular user', async () => {
-      const userData = { email: Generator.email(), password: Generator.password(), nativeLanguage: 'pl' };
-      await registerVerifiedUser(userData);
-
-      const accessToken = await loginAs(userData);
-
-      const response = await server.inject({
-        method: 'GET',
-        url: '/admin/users',
-        headers: { authorization: `Bearer ${accessToken}` },
-      });
-
-      expect(response.statusCode).toBe(403);
     });
   });
 });

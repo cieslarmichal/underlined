@@ -11,7 +11,6 @@ import { AuthContext } from './context/AuthContext.tsx';
 import { TooltipProvider } from './components/ui/Tooltip.tsx';
 import PrivateRoute from './auth/privateRoute.tsx';
 import PublicRoute from './auth/publicRoute.tsx';
-import AdminRoute from './auth/adminRoute.tsx';
 import LogoutPage from './pages/LogoutPage.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
@@ -27,13 +26,6 @@ import { getLastBookId } from './lib/lastBook.ts';
 function HomeRoute() {
   const { userData, userDataInitialized } = useContext(AuthContext);
   if (!userDataInitialized) return null;
-  if (userData?.role === 'admin')
-    return (
-      <Navigate
-        to="/admin"
-        replace
-      />
-    );
   if (userData) {
     const lastBookId = getLastBookId();
     return (
@@ -46,8 +38,6 @@ function HomeRoute() {
   return <HomePage />;
 }
 
-const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage.tsx'));
-const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage.tsx'));
 const MyProfilePage = lazy(() => import('./pages/MyProfilePage.tsx'));
 const BooksPage = lazy(() => import('./pages/BooksPage.tsx'));
 const BookPage = lazy(() => import('./pages/BookPage.tsx'));
@@ -165,30 +155,6 @@ const router = createBrowserRouter([
             ),
           },
         ],
-      },
-      {
-        path: '/admin',
-        element: (
-          <AdminRoute>
-            <ErrorBoundary>
-              <Suspense>
-                <AdminDashboardPage />
-              </Suspense>
-            </ErrorBoundary>
-          </AdminRoute>
-        ),
-      },
-      {
-        path: '/admin/users',
-        element: (
-          <AdminRoute>
-            <ErrorBoundary>
-              <Suspense>
-                <AdminUsersPage />
-              </Suspense>
-            </ErrorBoundary>
-          </AdminRoute>
-        ),
       },
       {
         path: '*',

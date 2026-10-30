@@ -36,6 +36,13 @@
       "when": 1793317175285,
       "tag": "0004_word_learning_state",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793319696450,
+      "tag": "0005_drop_user_role",
+      "breakpoints": true
     }
   ]
 }

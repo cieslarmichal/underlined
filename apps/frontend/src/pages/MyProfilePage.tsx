@@ -148,7 +148,7 @@ export default function MyProfilePage() {
           defaultValue="account"
           className="w-full"
         >
-          <TabsList className={`grid w-full mb-6 h-auto ${userData.role === 'admin' ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          <TabsList className="grid w-full mb-6 h-auto grid-cols-3">
             <TabsTrigger
               value="account"
               className="py-2.5 text-sm"
@@ -161,14 +161,12 @@ export default function MyProfilePage() {
             >
               Security
             </TabsTrigger>
-            {userData.role !== 'admin' && (
-              <TabsTrigger
-                value="danger"
-                className="py-2.5 text-sm"
-              >
-                Manage Account
-              </TabsTrigger>
-            )}
+            <TabsTrigger
+              value="danger"
+              className="py-2.5 text-sm"
+            >
+              Manage Account
+            </TabsTrigger>
           </TabsList>
 
           {/* Account Tab */}
@@ -426,84 +424,82 @@ export default function MyProfilePage() {
           </TabsContent>
 
           {/* Manage Account Tab */}
-          {userData.role !== 'admin' && (
-            <TabsContent value="danger">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-destructive/10 rounded-lg">
-                      <Trash2 className="w-5 h-5 text-destructive" />
-                    </div>
-                    <div>
-                      <CardTitle>Delete Account</CardTitle>
-                      <CardDescription>Permanently delete your account and all associated data</CardDescription>
-                    </div>
+          <TabsContent value="danger">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-destructive/10 rounded-lg">
+                    <Trash2 className="w-5 h-5 text-destructive" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
-                      <p className="text-sm font-medium text-destructive mb-2">Deleting your account will:</p>
-                      <ul className="text-sm text-destructive list-disc list-inside space-y-1">
-                        <li>Permanently remove all your data</li>
-                        <li>Revoke access to the platform</li>
-                        <li>Cannot be undone</li>
-                      </ul>
-                    </div>
+                  <div>
+                    <CardTitle>Delete Account</CardTitle>
+                    <CardDescription>Permanently delete your account and all associated data</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
+                    <p className="text-sm font-medium text-destructive mb-2">Deleting your account will:</p>
+                    <ul className="text-sm text-destructive list-disc list-inside space-y-1">
+                      <li>Permanently remove all your data</li>
+                      <li>Revoke access to the platform</li>
+                      <li>Cannot be undone</li>
+                    </ul>
+                  </div>
 
-                    <Dialog
-                      open={showDeleteDialog}
-                      onOpenChange={setShowDeleteDialog}
+                  <Dialog
+                    open={showDeleteDialog}
+                    onOpenChange={setShowDeleteDialog}
+                  >
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        className="w-full h-11"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete my account
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent
+                      className="sm:max-w-lg"
+                      onOpenAutoFocus={(e) => e.preventDefault()}
                     >
-                      <DialogTrigger asChild>
+                      <DialogHeader>
+                        <DialogTitle>Confirm account deletion</DialogTitle>
+                        <DialogDescription>
+                          Are you sure you want to delete your account? This action is irreversible and will permanently
+                          remove all your data.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 my-2">
+                        <p className="text-sm font-medium text-destructive">This action cannot be undone!</p>
+                        <p className="text-sm text-destructive mt-1">All your data will be permanently deleted.</p>
+                      </div>
+                      <div className="flex gap-3 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowDeleteDialog(false)}
+                          className="flex-1"
+                          disabled={isDeleting}
+                        >
+                          Cancel
+                        </Button>
                         <Button
                           variant="destructive"
-                          className="w-full h-11"
+                          onClick={onDeleteAccount}
+                          className="flex-1"
+                          disabled={isDeleting}
                         >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete my account
+                          {isDeleting ? 'Deleting...' : 'Delete account'}
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent
-                        className="sm:max-w-lg"
-                        onOpenAutoFocus={(e) => e.preventDefault()}
-                      >
-                        <DialogHeader>
-                          <DialogTitle>Confirm account deletion</DialogTitle>
-                          <DialogDescription>
-                            Are you sure you want to delete your account? This action is irreversible and will
-                            permanently remove all your data.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4 my-2">
-                          <p className="text-sm font-medium text-destructive">This action cannot be undone!</p>
-                          <p className="text-sm text-destructive mt-1">All your data will be permanently deleted.</p>
-                        </div>
-                        <div className="flex gap-3 pt-2">
-                          <Button
-                            variant="outline"
-                            onClick={() => setShowDeleteDialog(false)}
-                            className="flex-1"
-                            disabled={isDeleting}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            onClick={onDeleteAccount}
-                            className="flex-1"
-                            disabled={isDeleting}
-                          >
-                            {isDeleting ? 'Deleting...' : 'Delete account'}
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
     </div>

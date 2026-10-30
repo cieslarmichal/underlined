@@ -152,7 +152,7 @@ export class RefreshTokenAction {
     });
 
     return {
-      accessToken: this.tokenService.generateAccessToken({ userId: user.id, email: user.email, role: user.role }),
+      accessToken: this.tokenService.generateAccessToken({ userId: user.id, email: user.email }),
       refreshToken: this.tokenService.generateRefreshToken(
         { userId: user.id, sessionId: session.id, generation: session.generation },
         session.lastRotatedAt,

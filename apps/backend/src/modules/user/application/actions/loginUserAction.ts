@@ -84,7 +84,7 @@ export class LoginUserAction {
 
     await this.userSessionRepository.create({ id: sessionId, userId: user.id, issuedAt });
 
-    const accessToken = this.tokenService.generateAccessToken({ userId: user.id, email: user.email, role: user.role });
+    const accessToken = this.tokenService.generateAccessToken({ userId: user.id, email: user.email });
     const refreshToken = this.tokenService.generateRefreshToken(
       { userId: user.id, sessionId, generation: 0 },
       issuedAt,

@@ -22,19 +22,11 @@ export interface AccountStatus {
   readonly isDeleted: boolean;
 }
 
-export interface FindManyUsersParams {
-  readonly page: number;
-  readonly pageSize: number;
-  readonly email?: string | undefined;
-}
-
 export interface UserRepository {
   create(data: CreateUserData, tx?: Transaction): Promise<User>;
   update(id: string, data: UpdateUserData, tx?: Transaction): Promise<User>;
   findById(id: string, tx?: Transaction): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
-  findMany(params: FindManyUsersParams): Promise<User[]>;
-  count(email?: string): Promise<number>;
   delete(id: string): Promise<void>;
   getAccountStatus(userId: string): Promise<AccountStatus>;
 }

@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/Button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/Form';
 import { Input } from '@/components/ui/Input';
 import { loginUser } from '../api/queries/login';
-import { getMyUser } from '../api/queries/getMyUser';
 import { ApiError } from '../api/ApiError';
 
 const formSchema = z.object({
@@ -37,12 +36,7 @@ export default function LoginForm() {
   async function onSubmit(values: FormValues) {
     try {
       await loginUser({ email: values.email, password: values.password });
-      const user = await getMyUser();
-      if (user.role === 'admin') {
-        navigate('/admin', { replace: true });
-      } else {
-        navigate(from ?? '/', { replace: true });
-      }
+      navigate(from ?? '/', { replace: true });
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.isErrorType('TooManyRequestsError')) {

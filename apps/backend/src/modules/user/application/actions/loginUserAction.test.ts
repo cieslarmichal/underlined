@@ -74,7 +74,6 @@ describe('LoginUserAction', () => {
       const decodedAccess = tokenService.verifyAccessToken(result.accessToken);
       expect(decodedAccess.userId).toBe(user.id);
       expect(decodedAccess.email).toBe(user.email);
-      expect(decodedAccess.role).toBe('user');
 
       const decodedRefresh = tokenService.verifyRefreshToken(result.refreshToken);
       expect(decodedRefresh.userId).toBe(user.id);

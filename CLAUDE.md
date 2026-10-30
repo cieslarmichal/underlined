@@ -46,7 +46,6 @@ This is a **Turborepo monorepo** with npm workspaces:
 - `apps/backend` — Fastify REST API
 - `apps/frontend` — React SPA (Vite)
 - `apps/backend/drizzle` — Drizzle migrations
-- `tools/seeder` — Test data seeding
 
 ### Backend (`apps/backend/src/`)
 
@@ -82,7 +81,7 @@ Routes are registered as Fastify plugins. Transaction boundaries are defined in 
 pages/      — Page components (lazy-loaded via React.lazy)
 components/ — Reusable components (ui/ contains Radix UI wrappers)
 context/    — AuthContext + AuthContextProvider (global auth state)
-auth/       — Route guards: privateRoute, publicRoute, adminRoute
+auth/       — Route guards: privateRoute, publicRoute
 api/        — REST API query functions and types
 hooks/      — Custom hooks (useDebounce, useSEO)
 config.ts   — Site metadata (name, URL, contact) + backend URL. Rebrand here first.

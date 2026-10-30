@@ -12,7 +12,7 @@ export default function PublicRoute({ children }: { children: React.ReactNode })
   if (userData) {
     return (
       <Navigate
-        to={userData.role === 'admin' ? '/admin' : '/'}
+        to="/"
         replace
       />
     );

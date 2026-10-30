@@ -1,15 +1,13 @@
-import { and, count, eq, ilike, type SQL } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 import { IdService } from '../../../../common/id/idService.ts';
 import type { NativeLanguage } from '../../../../common/types/language.ts';
-import type { UserRole } from '../../../../common/types/userRole.ts';
 import type { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
 import { users } from '../../../../infrastructure/database/schema.ts';
 import type { Transaction } from '../../../../infrastructure/database/transaction.ts';
 import type {
   AccountStatus,
   CreateUserData,
-  FindManyUsersParams,
   UpdateUserData,
   UserRepository,
 } from '../../domain/repositories/userRepository.ts';
@@ -77,41 +75,6 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? this.mapToUser(user) : null;
   }
 
-  public async findMany(params: FindManyUsersParams): Promise<User[]> {
-    const { page, pageSize, email } = params;
-
-    const conditions: SQL[] = [eq(users.isDeleted, false)];
-
-    if (email) {
-      conditions.push(ilike(users.email, `%${email}%`));
-    }
-
-    const result = await this.databaseClient.db
-      .select()
-      .from(users)
-      .where(and(...conditions))
-      .orderBy(users.createdAt)
-      .limit(pageSize)
-      .offset((page - 1) * pageSize);
-
-    return result.map((row) => this.mapToUser(row));
-  }
-
-  public async count(email?: string): Promise<number> {
-    const conditions: SQL[] = [eq(users.isDeleted, false)];
-
-    if (email) {
-      conditions.push(ilike(users.email, `%${email}%`));
-    }
-
-    const [result] = await this.databaseClient.db
-      .select({ count: count() })
-      .from(users)
-      .where(and(...conditions));
-
-    return result?.count ?? 0;
-  }
-
   public async delete(id: string): Promise<void> {
     await this.databaseClient.db.delete(users).where(eq(users.id, id));
   }
@@ -135,7 +98,6 @@ export class UserRepositoryImpl implements UserRepository {
       id: dbUser.id,
       email: dbUser.email,
       password: dbUser.password,
-      role: dbUser.role as UserRole,
       isEmailVerified: dbUser.isEmailVerified,
       isDeleted: dbUser.isDeleted,
       nativeLanguage: dbUser.nativeLanguage as NativeLanguage,
