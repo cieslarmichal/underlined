@@ -27,12 +27,12 @@ const steps = [
 // The exact opening sentence of a public-domain book (verified against Project Gutenberg).
 const example = {
   pair: 'EN → PL',
-  sentence: 'It was on a dreary night of November that I beheld the accomplishment of my toils.',
-  word: 'dreary',
-  lemma: 'dreary',
-  meaning: 'ponury, posępny',
-  note: 'Tu nie „nudny”: znaczenie wynika z tego zdania.',
-  source: 'Mary Shelley, Frankenstein (1818)',
+  sentence: 'I glanced over my shoulder, and my heart jumped against my ribs.',
+  word: 'glanced',
+  lemma: 'glance',
+  meaning: 'zerknąć, rzucić okiem',
+  note: 'Szybkie spojrzenie przez ramię: znaczenie wynika z tego zdania.',
+  source: 'Robert Louis Stevenson, Treasure Island (1883)',
 };
 
 export default function HomePage() {
