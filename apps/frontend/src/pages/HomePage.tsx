@@ -24,16 +24,15 @@ const steps = [
   },
 ];
 
-// The exact opening sentence of a public-domain book.
+// The exact opening sentence of a public-domain book (verified against Project Gutenberg).
 const example = {
   pair: 'EN → PL',
-  sentence:
-    'Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?”',
-  word: 'bank',
-  lemma: 'bank',
-  meaning: 'brzeg',
-  note: 'Nie „bank”: znaczenie wynika z tego zdania.',
-  source: 'Lewis Carroll, Alice’s Adventures in Wonderland (1865)',
+  sentence: 'Call me Ishmael.',
+  word: 'Call',
+  lemma: 'call',
+  meaning: 'nazywać',
+  note: 'Nie „dzwonić”: znaczenie wynika z tego zdania.',
+  source: 'Herman Melville, Moby-Dick (1851)',
 };
 
 export default function HomePage() {
