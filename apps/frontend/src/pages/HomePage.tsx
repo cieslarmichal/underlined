@@ -27,12 +27,12 @@ const steps = [
 // The exact opening sentence of a public-domain book (verified against Project Gutenberg).
 const example = {
   pair: 'EN → PL',
-  sentence: 'Call me Ishmael.',
-  word: 'Call',
-  lemma: 'call',
-  meaning: 'nazywać',
-  note: 'Nie „dzwonić”: znaczenie wynika z tego zdania.',
-  source: 'Herman Melville, Moby-Dick (1851)',
+  sentence: 'It was on a dreary night of November that I beheld the accomplishment of my toils.',
+  word: 'dreary',
+  lemma: 'dreary',
+  meaning: 'ponury, posępny',
+  note: 'Tu nie „nudny”: znaczenie wynika z tego zdania.',
+  source: 'Mary Shelley, Frankenstein (1818)',
 };
 
 export default function HomePage() {
