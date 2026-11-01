@@ -3,7 +3,7 @@
     "refreshToken": {
       "name": "refresh-token-staging",
       "sameSite": "lax",
-      "domain": ".staging.underlined.com"
+      "domain": ".staging.underlined.dev"
     }
   }
 }

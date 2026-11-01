@@ -21,6 +21,9 @@ RUN npm ci
 
 COPY --from=pruner /app/out/full/ .
 
+ARG VITE_BACKEND_URL
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 RUN npm run build --filter="@apps/frontend"
 
 FROM nginx as static

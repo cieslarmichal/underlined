@@ -1,3 +1,8 @@
+# fly.toml app configuration file generated for underlined-backend on 2026-11-01T22:33:11+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
 app = 'underlined-backend'
 primary_region = 'fra'
 
@@ -27,7 +32,7 @@ primary_region = 'fra'
   [[http_service.checks]]
     interval = '15s'
     timeout = '10s'
-    grace_period = '60s'
+    grace_period = '1m0s'
     method = 'GET'
     path = '/health'
 

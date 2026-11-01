@@ -7,4 +7,4 @@ Disallow: /new-password
 Disallow: /verify-email
 
 # Sitemap
-Sitemap: https://underlined.com/sitemap.xml
+Sitemap: https://underlined.dev/sitemap.xml

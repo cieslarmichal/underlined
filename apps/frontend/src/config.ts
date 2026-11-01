@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const site = {
   name: 'Underlined',
   description: 'Photograph the words you underlined in a paper book and get their meaning in context.',
-  url: 'https://underlined.com',
+  url: 'https://underlined.dev',
 } as const;
 
 const appConfig = {

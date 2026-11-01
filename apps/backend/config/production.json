@@ -2,6 +2,10 @@
   "database": {
     "ssl": true
   },
+  "aws": {
+    "bucketName": "underlined-production"
+  },
+  "frontendUrl": "https://underlined.dev",
   "hashSaltRounds": 14,
   "rateLimit": {
     "register": {
@@ -46,7 +50,7 @@
     "refreshToken": {
       "name": "refresh-token",
       "sameSite": "lax",
-      "domain": ".underlined.com"
+      "domain": ".underlined.dev"
     }
   }
 }
