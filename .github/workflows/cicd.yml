@@ -74,6 +74,13 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+      localstack:
+        image: localstack/localstack
+        env:
+          SERVICES: s3
+          AWS_DEFAULT_REGION: eu-central-1
+        ports:
+          - 4566:4566
     steps:
       - uses: actions/checkout@v4
 
@@ -81,6 +88,14 @@ jobs:
         with:
           node-version: 26.5.0
           cache: "npm"
+
+      - name: Wait for LocalStack and create S3 bucket
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4566/_localstack/health && break
+            sleep 2
+          done
+          curl -sf -X PUT http://127.0.0.1:4566/underlined-bucket
 
       - name: Restore build artifacts
         uses: actions/cache/restore@v4
@@ -99,22 +114,6 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
       - name: Run backend unit and integration tests
         run: npm run test:ci --workspace=@apps/backend
-
-      - name: Restore build artifacts
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            apps/*/dist
-            apps/*/src/**/*.js
-            node_modules
-            apps/*/node_modules
-          key: build-${{ github.sha }}
-          fail-on-cache-miss: true
-
-      - name: Run database migrations
-        run: npm run db:migrate --workspace=@apps/backend
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
 
   deploy-backend:
     name: Deploy Backend to Fly.io
