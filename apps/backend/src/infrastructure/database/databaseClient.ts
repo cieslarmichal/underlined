@@ -16,11 +16,6 @@ export class DatabaseClient {
 
     this.pool = new Pool({
       connectionString: config.url,
-      ssl: config.ssl
-        ? {
-            rejectUnauthorized: false,
-          }
-        : false,
       ...config.pool,
     });
 

@@ -1,6 +1,5 @@
 {
   "database": {
-    "ssl": false,
     "pool": {
       "min": 2,
       "max": 10,

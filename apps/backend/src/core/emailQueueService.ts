@@ -49,11 +49,6 @@ export class EmailQueueService {
   private createBoss(): PgBoss {
     return new PgBoss({
       connectionString: this.config.database.url,
-      ssl: this.config.database.ssl
-        ? {
-            rejectUnauthorized: false,
-          }
-        : false,
       // keepAlive is passed to pg-pool at runtime but not typed in pg-boss types
       ...{ keepAlive: true },
     });

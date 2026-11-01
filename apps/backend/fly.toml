@@ -15,6 +15,11 @@ primary_region = 'fra'
 
 [env]
   NODE_ENV = 'production'
+  NODE_EXTRA_CA_CERTS = '/app/certs/db-ca.crt'
+
+[[files]]
+  guest_path = '/app/certs/db-ca.crt'
+  secret_name = 'DB_CA_CERT'
 
 [http_service]
   internal_port = 5000

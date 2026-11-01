@@ -23,7 +23,6 @@ const configSchema = Type.Object({
   }),
   database: Type.Object({
     url: Type.String({ minLength: 1 }),
-    ssl: Type.Boolean(),
     pool: Type.Object({
       min: Type.Number({ minimum: 0, maximum: 10 }),
       max: Type.Number({ minimum: 1, maximum: 20 }),

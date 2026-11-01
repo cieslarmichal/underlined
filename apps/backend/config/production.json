@@ -1,7 +1,4 @@
 {
-  "database": {
-    "ssl": true
-  },
   "aws": {
     "bucketName": "underlined-production"
   },
