@@ -1,4 +1,4 @@
-import { and, asc, count, eq, gte, ne } from 'drizzle-orm';
+import { and, asc, count, eq, gte, ne, sql } from 'drizzle-orm';
 
 import type { UnderlinedWord } from '../../../../common/ai/pageAnalysisService.ts';
 import { IdService } from '../../../../common/id/idService.ts';
@@ -41,6 +41,15 @@ export class CaptureRepositoryImpl implements CaptureRepository {
       .set({
         status: data.status,
         ...(data.items !== undefined && { aiResult: { items: data.items } }),
+        ...(data.usage !== undefined && {
+          aiModel: data.usage.model,
+          aiPromptTokens: sql`coalesce(${captures.aiPromptTokens}, 0) + ${data.usage.promptTokens}`,
+          aiCompletionTokens: sql`coalesce(${captures.aiCompletionTokens}, 0) + ${data.usage.completionTokens}`,
+          aiDurationMs: sql`coalesce(${captures.aiDurationMs}, 0) + ${data.usage.durationMs}`,
+          ...(data.usage.costUsd !== null && {
+            aiCostUsd: sql`coalesce(${captures.aiCostUsd}, 0) + ${data.usage.costUsd}`,
+          }),
+        }),
       })
       .where(eq(captures.id, id))
       .returning();

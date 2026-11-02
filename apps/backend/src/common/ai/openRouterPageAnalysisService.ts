@@ -3,7 +3,7 @@ import type { OpenRouterService } from '../openRouter/openRouterService.ts';
 import type { ResponseFormat } from '../openRouter/types.ts';
 import { languageNames } from '../types/language.ts';
 
-import type { AnalyzePagePayload, PageAnalysisService, UnderlinedWord } from './pageAnalysisService.ts';
+import type { AnalyzePagePayload, PageAnalysis, PageAnalysisService, UnderlinedWord } from './pageAnalysisService.ts';
 
 const responseFormat: ResponseFormat = {
   type: 'json_schema',
@@ -48,8 +48,8 @@ export class OpenRouterPageAnalysisService implements PageAnalysisService {
     this.openRouterService = openRouterService;
   }
 
-  public async analyzePage(payload: AnalyzePagePayload): Promise<UnderlinedWord[]> {
-    const { data } = await this.openRouterService.sendRequest<{ items?: RawItem[] }>({
+  public async analyzePage(payload: AnalyzePagePayload): Promise<PageAnalysis> {
+    const { data, usage, model, durationMs } = await this.openRouterService.sendRequest<{ items?: RawItem[] }>({
       systemMessage: this.buildSystemPrompt(payload),
       userMessage: [
         {
@@ -89,7 +89,16 @@ export class OpenRouterPageAnalysisService implements PageAnalysisService {
       }
     }
 
-    return words;
+    return {
+      words,
+      usage: {
+        model,
+        promptTokens: usage.promptTokens,
+        completionTokens: usage.completionTokens,
+        costUsd: usage.cost ?? null,
+        durationMs,
+      },
+    };
   }
 
   private buildSystemPrompt(payload: AnalyzePagePayload): string {

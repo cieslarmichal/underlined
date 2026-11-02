@@ -42,7 +42,7 @@ describe('CreateCaptureAction', () => {
     const pageAnalysisService: PageAnalysisService = {
       analyzePage: async () => {
         if (modelResult instanceof Error) throw modelResult;
-        return modelResult;
+        return { words: modelResult, usage: { model: 'test-model', promptTokens: 100, completionTokens: 20, costUsd: 0.01, durationMs: 1500 } };
       },
     };
 

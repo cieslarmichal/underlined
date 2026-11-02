@@ -45,6 +45,8 @@ export interface OpenRouterResponse {
 
 export interface StructuredResponse<T = Record<string, unknown>> {
   readonly data: T;
+  readonly model: string;
+  readonly durationMs: number;
   readonly usage: {
     readonly promptTokens: number;
     readonly completionTokens: number;

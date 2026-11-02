@@ -60,6 +60,8 @@ describe('OpenRouterService', () => {
 
     expect(result).toEqual({
       data: { items: [] },
+      model: config.model,
+      durationMs: expect.any(Number) as number,
       usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15, cost: 0.001 },
     });
 

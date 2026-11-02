@@ -26,7 +26,7 @@ describe('OpenRouterPageAnalysisService', () => {
     service = new OpenRouterPageAnalysisService({
       sendRequest: async (params: SendRequestParams) => {
         sent = params;
-        return { data: answer, usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2, cost: undefined } };
+        return { data: answer, model: 'test-model', durationMs: 42, usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2, cost: undefined } };
       },
     } as unknown as OpenRouterService);
   });
@@ -49,7 +49,7 @@ describe('OpenRouterPageAnalysisService', () => {
       items: [{ surface_form: ' fled ', lemma: 'flee ', sentence: ' Harry fled. ', translation: ' uciekać ' }],
     };
 
-    expect(await service.analyzePage(payload)).toEqual([
+    expect((await service.analyzePage(payload)).words).toEqual([
       { surfaceForm: 'fled', lemma: 'flee', sentence: 'Harry fled.', translation: 'uciekać' },
     ]);
   });
@@ -64,9 +64,15 @@ describe('OpenRouterPageAnalysisService', () => {
       ],
     };
 
-    const words = await service.analyzePage(payload);
+    const { words } = await service.analyzePage(payload);
 
     expect(words.map((word) => word.lemma)).toEqual(['ok']);
+  });
+
+  it('reports the model usage of the request', async () => {
+    const { usage } = await service.analyzePage(payload);
+
+    expect(usage).toEqual({ model: 'test-model', promptTokens: 1, completionTokens: 1, costUsd: null, durationMs: 42 });
   });
 
   it('throws ExternalServiceError when the result has no items list', async () => {

@@ -36,7 +36,7 @@ describe('Book, capture and word flow', () => {
     analyzePage: async () => {
       analysis.calls++;
       if (analysis.fail) throw new Error('model down');
-      return analysis.items;
+      return { words: analysis.items, usage: { model: 'test-model', promptTokens: 100, completionTokens: 20, costUsd: 0.01, durationMs: 1500 } };
     },
   };
 

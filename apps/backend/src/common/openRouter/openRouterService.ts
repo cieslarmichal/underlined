@@ -70,7 +70,7 @@ export class OpenRouterService {
         cost: response.usage.cost,
       });
 
-      return this.formatResponse<Response>(response);
+      return this.formatResponse<Response>(response, duration);
     } catch (error) {
       this.logger.error({
         message: 'OpenRouter API request failed',
@@ -84,7 +84,7 @@ export class OpenRouterService {
     }
   }
 
-  private formatResponse<T>(rawResponse: OpenRouterResponse): StructuredResponse<T> {
+  private formatResponse<T>(rawResponse: OpenRouterResponse, durationMs: number): StructuredResponse<T> {
     const content = rawResponse.choices[0]?.message.content;
 
     if (!content) {
@@ -98,6 +98,8 @@ export class OpenRouterService {
     try {
       return {
         data: JSON.parse(content) as T,
+        model: this.config.model,
+        durationMs,
         usage: {
           promptTokens: rawResponse.usage.prompt_tokens,
           completionTokens: rawResponse.usage.completion_tokens,

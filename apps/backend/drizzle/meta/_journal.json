@@ -43,6 +43,13 @@
       "when": 1793319696450,
       "tag": "0005_drop_user_role",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793658114075,
+      "tag": "0006_capture_ai_usage_and_limit",
+      "breakpoints": true
     }
   ]
 }

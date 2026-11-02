@@ -1,4 +1,4 @@
-import type { UnderlinedWord } from '../../../../common/ai/pageAnalysisService.ts';
+import type { AnalysisUsage, UnderlinedWord } from '../../../../common/ai/pageAnalysisService.ts';
 import type { NativeLanguage } from '../../../../common/types/language.ts';
 import type { Transaction } from '../../../../infrastructure/database/transaction.ts';
 import type { Capture, CaptureStatus } from '../types/capture.ts';
@@ -13,6 +13,8 @@ export interface CreateCaptureData {
 export interface UpdateCaptureData {
   readonly status: CaptureStatus;
   readonly items?: UnderlinedWord[];
+  // Model usage of this analysis. Added to what earlier attempts on the same photo already used.
+  readonly usage?: AnalysisUsage;
 }
 
 export interface CaptureRepository {

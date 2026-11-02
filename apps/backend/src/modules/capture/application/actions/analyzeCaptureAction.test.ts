@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { Generator } from '../../../../../tests/generator.ts';
@@ -11,6 +12,7 @@ import type {
   PageAnalysisService,
   UnderlinedWord,
 } from '../../../../common/ai/pageAnalysisService.ts';
+import { captures } from '../../../../infrastructure/database/schema.ts';
 import type { Book } from '../../../book/domain/types/book.ts';
 import type { Capture } from '../../domain/types/capture.ts';
 
@@ -31,7 +33,7 @@ describe('AnalyzeCaptureAction', () => {
       analyzePage: async (payload) => {
         received = payload;
         if (result instanceof Error) throw result;
-        return result;
+        return { words: result, usage: { model: 'test-model', promptTokens: 100, completionTokens: 20, costUsd: 0.01, durationMs: 1500 } };
       },
     };
 
@@ -86,5 +88,23 @@ describe('AnalyzeCaptureAction', () => {
     );
 
     expect(analyzed.status).toBe('failed');
+  });
+
+  it('stores the model usage and adds up the usage of repeated analyses', async () => {
+    const { book, capture } = await setup();
+    const input = { capture, book, image: Buffer.from('img'), imageMimeType: 'image/jpeg' };
+
+    await analyzeCaptureAction.execute(input, Generator.executionContext());
+    await analyzeCaptureAction.execute(input, Generator.executionContext());
+
+    const [row] = await context.databaseClient.db.select().from(captures).where(eq(captures.id, capture.id));
+
+    expect(row).toMatchObject({
+      aiModel: 'test-model',
+      aiPromptTokens: 200,
+      aiCompletionTokens: 40,
+      aiCostUsd: '0.020000',
+      aiDurationMs: 3000,
+    });
   });
 });

@@ -32,7 +32,7 @@ export class AnalyzeCaptureAction {
     const { capture, book, image, imageMimeType } = payload;
 
     try {
-      const items = await this.pageAnalysisService.analyzePage({
+      const { words: items, usage } = await this.pageAnalysisService.analyzePage({
         image,
         imageMimeType,
         bookTitle: book.title,
@@ -44,7 +44,7 @@ export class AnalyzeCaptureAction {
       // Nothing underlined means there is nothing to review.
       const status = items.length > 0 ? 'pending_review' : 'rejected';
 
-      return await this.captureRepository.update(capture.id, { status, items });
+      return await this.captureRepository.update(capture.id, { status, items, usage });
     } catch (error) {
       this.loggerService.error({
         message: 'Page analysis failed',

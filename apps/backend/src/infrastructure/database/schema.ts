@@ -1,4 +1,4 @@
-import { boolean, index, integer, jsonb, pgTable, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, jsonb, numeric, pgTable, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export const users = pgTable(
   'users',
@@ -9,7 +9,7 @@ export const users = pgTable(
     isEmailVerified: boolean('is_email_verified').notNull().default(false),
     isDeleted: boolean('is_deleted').notNull().default(false),
     nativeLanguage: varchar('native_language', { length: 2 }).notNull().default('en'),
-    dailyCaptureLimit: integer('daily_capture_limit').notNull().default(10),
+    dailyCaptureLimit: integer('daily_capture_limit').notNull().default(5),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [index('users_email_idx').on(table.email)],
@@ -86,6 +86,12 @@ export const captures = pgTable(
     targetLanguage: varchar('target_language', { length: 2 }).notNull(),
     status: varchar('status', { length: 16 }).notNull(),
     aiResult: jsonb('ai_result'),
+    // Model usage, summed over every analysis attempt on this photo.
+    aiModel: varchar('ai_model', { length: 100 }),
+    aiPromptTokens: integer('ai_prompt_tokens'),
+    aiCompletionTokens: integer('ai_completion_tokens'),
+    aiCostUsd: numeric('ai_cost_usd', { precision: 12, scale: 6 }),
+    aiDurationMs: integer('ai_duration_ms'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
