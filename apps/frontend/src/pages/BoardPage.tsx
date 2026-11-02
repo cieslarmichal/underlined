@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Download, Search } from 'lucide-react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -19,6 +19,7 @@ import { getBooks } from '../api/queries/books';
 import { deleteWord, getWords, getWordsSummary, setWordKnown } from '../api/queries/words';
 import type { Word, WordSort } from '../api/types/word';
 import EditOccurrencesDialog from '../components/EditOccurrencesDialog';
+import ExportWordsDialog from '../components/ExportWordsDialog';
 import WordCard from '../components/WordCard';
 import { site } from '../config';
 import { useAsyncData } from '../hooks/useAsyncData';
@@ -47,6 +48,7 @@ export default function BoardPage() {
   const [sort, setSort] = useState<WordSort>('newest');
   const [editedWord, setEditedWord] = useState<Word>();
   const [deletedWord, setDeletedWord] = useState<Word>();
+  const [exportOpen, setExportOpen] = useState(false);
 
   const query = useDebounce(search.trim(), 300);
 
@@ -87,7 +89,18 @@ export default function BoardPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="mb-1 font-serif text-3xl font-semibold tracking-tight">Words</h1>
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <h1 className="font-serif text-3xl font-semibold tracking-tight">Words</h1>
+        {summary.data && summary.data.totalWords > 0 && (
+          <Button
+            variant="outline"
+            onClick={() => setExportOpen(true)}
+          >
+            <Download className="size-4" />
+            Export
+          </Button>
+        )}
+      </div>
       {summary.data && summary.data.totalWords > 0 && (
         <p className="mb-4 text-sm text-muted-foreground">
           This week: {summary.data.newWords} new {summary.data.newWords === 1 ? 'word' : 'words'}.{' '}
@@ -194,6 +207,13 @@ export default function BoardPage() {
           />
         ))}
       </div>
+
+      <ExportWordsDialog
+        open={exportOpen}
+        onOpenChange={setExportOpen}
+        bookId={bookId === allBooks ? undefined : bookId}
+        scope={bookId === allBooks ? 'the words from all your books' : 'the words from the selected book'}
+      />
 
       {editedWord && (
         <EditOccurrencesDialog

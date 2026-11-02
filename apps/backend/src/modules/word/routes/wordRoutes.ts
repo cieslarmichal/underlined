@@ -8,6 +8,7 @@ import type { DatabaseClient } from '../../../infrastructure/database/databaseCl
 import { UserRepositoryImpl } from '../../user/infrastructure/repositories/userRepositoryImpl.ts';
 import { DeleteWordAction } from '../application/actions/deleteWordAction.ts';
 import { DeleteWordFromBookAction } from '../application/actions/deleteWordFromBookAction.ts';
+import { ExportWordsAction } from '../application/actions/exportWordsAction.ts';
 import { FindWordsAction } from '../application/actions/findWordsAction.ts';
 import { GetRememberCardAction } from '../application/actions/getRememberCardAction.ts';
 import { GetWordsSummaryAction } from '../application/actions/getWordsSummaryAction.ts';
@@ -19,6 +20,7 @@ import { WordRepositoryImpl } from '../infrastructure/repositories/wordRepositor
 
 import {
   bookWordParamsSchema,
+  exportQuerySchema,
   knownRequestSchema,
   rememberQuerySchema,
   rememberRequestSchema,
@@ -43,6 +45,7 @@ export const wordRoutes: FastifyPluginAsyncTypebox<{
   const wordRepository = new WordRepositoryImpl(databaseClient);
 
   const findWordsAction = new FindWordsAction(wordRepository);
+  const exportWordsAction = new ExportWordsAction(wordRepository);
   const updateOccurrenceAction = new UpdateOccurrenceAction(wordRepository);
   const getRememberCardAction = new GetRememberCardAction(wordRepository);
   const recordRecallAction = new RecordRecallAction(wordRepository);
@@ -91,6 +94,23 @@ export const wordRoutes: FastifyPluginAsyncTypebox<{
       });
 
       return reply.send({ data: words.map(mapWordToResponse) });
+    },
+  });
+
+  fastify.get('/words/export', {
+    schema: { querystring: exportQuerySchema },
+    config: { rateLimit: config.rateLimit.profile },
+    preValidation: [authenticationMiddleware],
+    handler: async (request, reply) => {
+      const { format, bookId, status } = request.query;
+
+      const file = await exportWordsAction.execute({ userId: getUserId(request), format, bookId, status });
+
+      return reply
+        .header('Content-Type', file.contentType)
+        .header('Content-Disposition', `attachment; filename="${file.filename}"`)
+        .header('Cache-Control', 'no-store')
+        .send(file.body);
     },
   });
 

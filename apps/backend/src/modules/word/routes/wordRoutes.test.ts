@@ -133,4 +133,55 @@ describe('Word learning routes', () => {
       knownWords: 0,
     });
   });
+
+  describe('export', () => {
+    it('requires authentication', async () => {
+      const response = await server.inject({ method: 'GET', url: '/words/export?format=csv' });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    it('rejects an unknown format', async () => {
+      expect((await call('GET', '/words/export?format=pdf')).statusCode).toBe(400);
+    });
+
+    it('downloads the words as a CSV file', async () => {
+      await saveWord();
+
+      const response = await call('GET', '/words/export?format=csv');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-type']).toContain('text/csv');
+      expect(response.headers['content-disposition']).toMatch(
+        /^attachment; filename="underlined-words-\d{4}-\d{2}-\d{2}\.csv"$/,
+      );
+      expect(response.body).toContain(`"${fled.lemma}"`);
+      expect(response.body).toContain(`"${fled.sentence}"`);
+    });
+
+    it('downloads the words as an Anki import file', async () => {
+      await saveWord();
+
+      const response = await call('GET', '/words/export?format=anki');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers['content-disposition']).toContain('.txt"');
+      expect(response.body.startsWith('#separator:tab')).toBe(true);
+      expect(response.body).toContain(fled.lemma);
+    });
+
+    it('exports only the words of the given book', async () => {
+      await saveWord();
+      const otherBook = await new BookRepositoryImpl(databaseClient).create({
+        userId,
+        title: 'Other',
+        author: null,
+        language: 'en',
+      });
+
+      const response = await call('GET', `/words/export?format=csv&bookId=${otherBook.id}`);
+
+      expect(response.body.trim().split('\r\n')).toHaveLength(1);
+    });
+  });
 });

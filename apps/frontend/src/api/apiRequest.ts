@@ -13,6 +13,8 @@ interface ApiRequestConfig {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   body?: unknown;
   params?: URLSearchParams;
+  // Defaults to JSON. Use 'blob' for file downloads.
+  responseType?: 'json' | 'blob';
 }
 
 // Store the current access token value directly
@@ -163,6 +165,10 @@ export const apiRequest = async <T>(endpoint: string, options: ApiRequestConfig)
 
   if (response.status === 204) {
     return null as unknown as T;
+  }
+
+  if (options.responseType === 'blob') {
+    return (await response.blob()) as T;
   }
 
   const responseData = await response.json();

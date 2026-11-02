@@ -28,6 +28,12 @@ export const wordsQuerySchema = Type.Object({
   status: Type.Optional(Type.Union([Type.Literal('active'), Type.Literal('known'), Type.Literal('all')])),
 });
 
+export const exportQuerySchema = Type.Object({
+  format: Type.Union([Type.Literal('csv'), Type.Literal('anki')]),
+  bookId: Type.Optional(Type.String({ format: 'uuid' })),
+  status: Type.Optional(Type.Union([Type.Literal('active'), Type.Literal('known'), Type.Literal('all')])),
+});
+
 export const rememberQuerySchema = Type.Object({
   bookId: Type.Optional(Type.String({ format: 'uuid' })),
 });

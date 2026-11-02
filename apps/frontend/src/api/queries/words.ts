@@ -20,6 +20,16 @@ export const getWords = async (input: GetWordsInput = {}): Promise<Word[]> => {
   return response.data;
 };
 
+export type ExportFormat = 'anki' | 'csv';
+
+export const exportWords = (format: ExportFormat, bookId?: string): Promise<Blob> => {
+  const params = new URLSearchParams({ format });
+
+  if (bookId) params.set('bookId', bookId);
+
+  return apiRequest<Blob>('/words/export', { method: 'GET', params, responseType: 'blob' });
+};
+
 export const getRememberCard = async (bookId?: string): Promise<RememberCard | null> => {
   const response = await apiRequest<{ data: RememberCard | null }>('/words/remember', {
     method: 'GET',
