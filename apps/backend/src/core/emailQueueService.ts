@@ -63,7 +63,7 @@ export class EmailQueueService {
         payload: template.data,
       },
       {
-        retryLimit: 5,
+        retryLimit: 4,
         retryDelay: 2,
         retryBackoff: true,
       },
