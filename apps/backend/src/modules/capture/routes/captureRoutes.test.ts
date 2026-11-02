@@ -114,6 +114,30 @@ describe('Book, capture and word flow', () => {
     return response.json<{ data: WordDto[] }>().data;
   }
 
+  describe('upload limits', () => {
+    it('rejects a photo larger than the allowed image size with 413', async () => {
+      const book = await createBook('en', 'Treasure Island');
+      const boundary = '----underlined';
+      const oversized = Buffer.alloc(4 * 1024 * 1024, 1);
+      const payload = Buffer.concat([
+        Buffer.from(
+          `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="page.png"\r\nContent-Type: image/png\r\n\r\n`,
+        ),
+        oversized,
+        Buffer.from(`\r\n--${boundary}--\r\n`),
+      ]);
+
+      const response = await server.inject({
+        method: 'POST',
+        url: `/books/${book.id}/captures`,
+        headers: { ...auth(), 'content-type': `multipart/form-data; boundary=${boundary}` },
+        payload,
+      });
+
+      expect(response.statusCode).toBe(413);
+    });
+  });
+
   describe('books', () => {
     it('rejects a book in the native language', async () => {
       const response = await server.inject({

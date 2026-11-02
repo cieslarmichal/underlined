@@ -132,13 +132,19 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     oneTimeTokenRepository,
     databaseClient,
   );
-  const changePasswordAction = new ChangePasswordAction(userRepository, loggerService, passwordService);
+  const changePasswordAction = new ChangePasswordAction(
+    userRepository,
+    loggerService,
+    passwordService,
+    userSessionRepository,
+  );
   const changePasswordByTokenAction = new ChangePasswordByTokenAction(
     userRepository,
     loggerService,
     passwordService,
     oneTimeTokenRepository,
     databaseClient,
+    userSessionRepository,
   );
   const validateOneTimeTokenAction = new ValidateOneTimeTokenAction(
     userRepository,
@@ -346,6 +352,9 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
   });
 
   fastify.post('/users/me/change-password', {
+    config: {
+      rateLimit: config.rateLimit.passwordReset,
+    },
     schema: {
       body: Type.Object({
         currentPassword: Type.String({ minLength: 8, maxLength: 64 }),
@@ -365,11 +374,24 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
 
       const { userId } = request.user;
 
+      // Keep the session that is performing the change signed in; every other device is signed out.
+      const refreshToken = request.cookies[refreshTokenCookie.name];
+      let currentSessionId: string | undefined;
+
+      if (refreshToken) {
+        try {
+          currentSessionId = tokenService.verifyRefreshToken(refreshToken).sessionId;
+        } catch {
+          currentSessionId = undefined;
+        }
+      }
+
       await changePasswordAction.execute(
         {
           userId,
           currentPassword: request.body.currentPassword,
           newPassword: request.body.newPassword,
+          currentSessionId,
         },
         { requestId: request.id, userId },
       );

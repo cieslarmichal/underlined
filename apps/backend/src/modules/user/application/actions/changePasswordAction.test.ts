@@ -6,8 +6,9 @@ import { UnauthorizedAccessError } from '../../../../common/errors/unathorizedAc
 import { LoggerServiceFactory } from '../../../../common/logger/loggerServiceFactory.ts';
 import { createConfig, type Config } from '../../../../core/config.ts';
 import { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
-import { users } from '../../../../infrastructure/database/schema.ts';
+import { userSessions, users } from '../../../../infrastructure/database/schema.ts';
 import { UserRepositoryImpl } from '../../infrastructure/repositories/userRepositoryImpl.ts';
+import { UserSessionRepositoryImpl } from '../../infrastructure/repositories/userSessionRepositoryImpl.ts';
 import { PasswordService } from '../services/passwordService.ts';
 
 import { ChangePasswordAction } from './changePasswordAction.ts';
@@ -15,6 +16,7 @@ import { ChangePasswordAction } from './changePasswordAction.ts';
 describe('ChangePasswordAction', () => {
   let databaseClient: DatabaseClient;
   let userRepository: UserRepositoryImpl;
+  let userSessionRepository: UserSessionRepositoryImpl;
   let changePasswordAction: ChangePasswordAction;
   let passwordService: PasswordService;
   let config: Config;
@@ -24,14 +26,22 @@ describe('ChangePasswordAction', () => {
     const loggerService = LoggerServiceFactory.create({ logLevel: 'silent' });
     databaseClient = new DatabaseClient(config.database, loggerService);
     userRepository = new UserRepositoryImpl(databaseClient);
+    userSessionRepository = new UserSessionRepositoryImpl(databaseClient);
     passwordService = new PasswordService(config);
 
-    changePasswordAction = new ChangePasswordAction(userRepository, loggerService, passwordService);
+    changePasswordAction = new ChangePasswordAction(
+      userRepository,
+      loggerService,
+      passwordService,
+      userSessionRepository,
+    );
 
+    await databaseClient.db.delete(userSessions);
     await databaseClient.db.delete(users);
   });
 
   afterEach(async () => {
+    await databaseClient.db.delete(userSessions);
     await databaseClient.db.delete(users);
     await databaseClient.close();
   });
@@ -58,6 +68,28 @@ describe('ChangePasswordAction', () => {
 
     const isOldPasswordValid = await passwordService.comparePasswords(rawPassword, updatedUser.password);
     expect(isOldPasswordValid).toBe(false);
+  });
+
+  it('revokes all other sessions but keeps the current one', async () => {
+    const rawPassword = Generator.password();
+    const user = await userRepository.create(
+      Generator.userData({ password: await passwordService.hashPassword(rawPassword), isEmailVerified: true }),
+    );
+    const currentSession = await userSessionRepository.create({ userId: user.id, issuedAt: new Date() });
+    const otherSession = await userSessionRepository.create({ userId: user.id, issuedAt: new Date() });
+
+    await changePasswordAction.execute(
+      {
+        userId: user.id,
+        currentPassword: rawPassword,
+        newPassword: 'NewPassword123!',
+        currentSessionId: currentSession.id,
+      },
+      Generator.executionContext(),
+    );
+
+    expect((await userSessionRepository.findById(currentSession.id))?.status).toBe('active');
+    expect((await userSessionRepository.findById(otherSession.id))?.status).toBe('revoked');
   });
 
   it('throws UnauthorizedAccessError when current password is incorrect', async () => {

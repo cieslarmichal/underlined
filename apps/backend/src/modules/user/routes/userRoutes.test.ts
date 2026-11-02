@@ -53,6 +53,19 @@ describe('User Routes Integration Tests', () => {
     return rawToken;
   }
 
+  describe('malformed requests', () => {
+    it('answers invalid JSON with 400 instead of 500', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: '/users/login',
+        headers: { 'content-type': 'application/json' },
+        payload: '{bad',
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
+
   describe('POST /users/register', () => {
     it('should register a new user successfully', async () => {
       const userData = {

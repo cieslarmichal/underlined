@@ -98,6 +98,54 @@ describe('LoginUserAction', () => {
       ).rejects.toThrow(UnauthorizedAccessError);
     });
 
+    it('returns the same error for unknown, deleted and wrong-password accounts', async () => {
+      const context = Generator.executionContext();
+      const rawPassword = Generator.password();
+      const hashed = await passwordService.hashPassword(rawPassword);
+
+      const deletedUser = await userRepository.create(Generator.userData({ password: hashed, isEmailVerified: true }));
+      const deleted = await userRepository.update(deletedUser.id, { isDeleted: true });
+      const active = await userRepository.create(Generator.userData({ password: hashed, isEmailVerified: true }));
+
+      const reasons: unknown[] = [];
+
+      for (const attempt of [
+        { email: 'nobody@example.com', password: rawPassword },
+        { email: deleted.email, password: rawPassword },
+        { email: active.email, password: 'WrongPassword1!' },
+      ]) {
+        try {
+          await loginUserAction.execute(attempt, context);
+        } catch (error) {
+          reasons.push(error instanceof UnauthorizedAccessError ? error.toJSON() : error);
+        }
+      }
+
+      expect(reasons).toHaveLength(3);
+      expect(new Set(reasons.map((reason) => JSON.stringify(reason))).size).toBe(1);
+    });
+
+    it('reveals that the email is unverified only after a correct password', async () => {
+      const context = Generator.executionContext();
+      const rawPassword = Generator.password();
+      const user = await userRepository.create(
+        Generator.userData({ password: await passwordService.hashPassword(rawPassword), isEmailVerified: false }),
+      );
+
+      const wrongPassword = await loginUserAction
+        .execute({ email: user.email, password: 'WrongPassword1!' }, context)
+        .catch((error: unknown) => error);
+      const rightPassword = await loginUserAction
+        .execute({ email: user.email, password: rawPassword }, context)
+        .catch((error: unknown) => error);
+
+      expect(wrongPassword).toBeInstanceOf(UnauthorizedAccessError);
+      expect((wrongPassword as UnauthorizedAccessError).toJSON()).toMatchObject({ context: { reason: 'Invalid credentials' } });
+      expect((rightPassword as UnauthorizedAccessError).toJSON()).toMatchObject({
+        context: { reason: 'User email is not verified.' },
+      });
+    });
+
     it('throws UnauthorizedAccessError when password is incorrect', async () => {
       const userData = Generator.userData({
         password: await passwordService.hashPassword(Generator.password()),

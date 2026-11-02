@@ -8,9 +8,10 @@ import { IdService } from '../../../../common/id/idService.ts';
 import { LoggerServiceFactory } from '../../../../common/logger/loggerServiceFactory.ts';
 import { createConfig } from '../../../../core/config.ts';
 import { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
-import { oneTimeTokens, users } from '../../../../infrastructure/database/schema.ts';
+import { oneTimeTokens, userSessions, users } from '../../../../infrastructure/database/schema.ts';
 import { OneTimeTokenRepositoryImpl } from '../../infrastructure/repositories/oneTimeTokenRepositoryImpl.ts';
 import { UserRepositoryImpl } from '../../infrastructure/repositories/userRepositoryImpl.ts';
+import { UserSessionRepositoryImpl } from '../../infrastructure/repositories/userSessionRepositoryImpl.ts';
 import { PasswordService } from '../services/passwordService.ts';
 
 import { ChangePasswordByTokenAction } from './changePasswordByTokenAction.ts';
@@ -19,6 +20,7 @@ describe('ChangePasswordByTokenAction', () => {
   let databaseClient: DatabaseClient;
   let userRepository: UserRepositoryImpl;
   let oneTimeTokenRepository: OneTimeTokenRepositoryImpl;
+  let userSessionRepository: UserSessionRepositoryImpl;
   let changePasswordByTokenAction: ChangePasswordByTokenAction;
   let passwordService: PasswordService;
 
@@ -28,6 +30,7 @@ describe('ChangePasswordByTokenAction', () => {
     databaseClient = new DatabaseClient(config.database, loggerService);
     userRepository = new UserRepositoryImpl(databaseClient);
     oneTimeTokenRepository = new OneTimeTokenRepositoryImpl(databaseClient);
+    userSessionRepository = new UserSessionRepositoryImpl(databaseClient);
     passwordService = new PasswordService(config);
 
     changePasswordByTokenAction = new ChangePasswordByTokenAction(
@@ -36,13 +39,16 @@ describe('ChangePasswordByTokenAction', () => {
       passwordService,
       oneTimeTokenRepository,
       databaseClient,
+      userSessionRepository,
     );
 
+    await databaseClient.db.delete(userSessions);
     await databaseClient.db.delete(oneTimeTokens);
     await databaseClient.db.delete(users);
   });
 
   afterEach(async () => {
+    await databaseClient.db.delete(userSessions);
     await databaseClient.db.delete(oneTimeTokens);
     await databaseClient.db.delete(users);
     await databaseClient.close();
@@ -70,6 +76,28 @@ describe('ChangePasswordByTokenAction', () => {
       if (!updatedUser) return;
       const isNewPasswordValid = await passwordService.comparePasswords(newPassword, updatedUser.password);
       expect(isNewPasswordValid).toBe(true);
+    });
+
+    it('revokes every session of the user after the reset', async () => {
+      const user = await userRepository.create(
+        Generator.userData({ password: await passwordService.hashPassword(Generator.password()) }),
+      );
+      const session = await userSessionRepository.create({ userId: user.id, issuedAt: new Date() });
+
+      const rawToken = IdService.generateNanoid();
+      await oneTimeTokenRepository.create({
+        userId: user.id,
+        tokenHash: CryptoService.hashData(rawToken),
+        purpose: 'reset-password',
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      });
+
+      await changePasswordByTokenAction.execute(
+        { token: rawToken, newPassword: Generator.password() },
+        Generator.executionContext(),
+      );
+
+      expect((await userSessionRepository.findById(session.id))?.status).toBe('revoked');
     });
 
     it('throws InputNotValidError for invalid token', async () => {

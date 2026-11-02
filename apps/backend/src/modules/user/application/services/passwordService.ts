@@ -5,6 +5,7 @@ import type { Config } from '../../../../core/config.ts';
 
 export class PasswordService {
   private readonly config: Config;
+  private dummyHash: Promise<string> | undefined;
 
   public constructor(config: Config) {
     this.config = config;
@@ -18,6 +19,13 @@ export class PasswordService {
 
   public async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
+  }
+
+  // Burns the same CPU time as a real comparison, so that unknown accounts can't be told apart by response time.
+  public async compareWithDummyHash(password: string): Promise<void> {
+    this.dummyHash ??= this.hashPassword('timing-equalisation-dummy-password');
+
+    await bcrypt.compare(password, await this.dummyHash);
   }
 
   public validatePassword(password: string): void {

@@ -44,39 +44,27 @@ export class LoginUserAction {
     this.loggerService.debug({
       message: 'User login attempt',
       requestId: context.requestId,
-      email: normalizedEmail,
     });
 
     const user = await this.userRepository.findByEmail(normalizedEmail);
 
-    if (!user) {
-      throw new UnauthorizedAccessError({
-        reason: 'Invalid credentials',
-        email: normalizedEmail,
-      });
-    }
+    // Every credential failure returns the same error, and unknown accounts still pay for a bcrypt comparison,
+    // so neither the response body nor the response time reveals whether the account exists.
+    if (!user || user.isDeleted) {
+      await this.passwordService.compareWithDummyHash(loginData.password);
 
-    if (!user.isEmailVerified) {
-      throw new UnauthorizedAccessError({
-        reason: 'User email is not verified.',
-        email: normalizedEmail,
-      });
-    }
-
-    if (user.isDeleted) {
-      throw new UnauthorizedAccessError({
-        reason: 'User account is deleted.',
-        email: normalizedEmail,
-      });
+      throw new UnauthorizedAccessError({ reason: 'Invalid credentials' });
     }
 
     const isPasswordValid = await this.passwordService.comparePasswords(loginData.password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedAccessError({
-        reason: 'Invalid credentials',
-        email: normalizedEmail,
-      });
+      throw new UnauthorizedAccessError({ reason: 'Invalid credentials' });
+    }
+
+    // Only someone who knows the password learns that the email still needs verifying.
+    if (!user.isEmailVerified) {
+      throw new UnauthorizedAccessError({ reason: 'User email is not verified.', userId: user.id });
     }
 
     const sessionId = IdService.generateUuid();
@@ -94,7 +82,6 @@ export class LoginUserAction {
       message: 'User logged in successfully',
       requestId: context.requestId,
       userId: user.id,
-      email: user.email,
     });
 
     return { accessToken, refreshToken };

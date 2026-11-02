@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 
 import { IdService } from '../../../../common/id/idService.ts';
 import type { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
@@ -82,6 +82,21 @@ export class UserSessionRepositoryImpl implements UserSessionRepository {
       .update(userSessions)
       .set({ status: 'revoked', updatedAt: now })
       .where(and(eq(userSessions.id, sessionId), eq(userSessions.status, 'active')));
+  }
+
+  public async revokeAllForUser(userId: string, exceptSessionId?: string, tx?: Transaction): Promise<void> {
+    const db = tx ?? this.databaseClient.db;
+
+    await db
+      .update(userSessions)
+      .set({ status: 'revoked', updatedAt: new Date() })
+      .where(
+        and(
+          eq(userSessions.userId, userId),
+          eq(userSessions.status, 'active'),
+          ...(exceptSessionId ? [ne(userSessions.id, exceptSessionId)] : []),
+        ),
+      );
   }
 
   private map(row: typeof userSessions.$inferSelect): UserSession {

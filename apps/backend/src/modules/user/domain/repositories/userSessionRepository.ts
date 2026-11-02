@@ -19,4 +19,5 @@ export interface UserSessionRepository {
   findById(sessionId: string, tx?: Transaction): Promise<UserSession | null>;
   rotate(data: RotateUserSessionData, tx?: Transaction): Promise<UserSession>;
   revoke(sessionId: string, tx?: Transaction): Promise<void>;
+  revokeAllForUser(userId: string, exceptSessionId?: string, tx?: Transaction): Promise<void>;
 }

@@ -10,6 +10,7 @@ import { OpenRouterPageAnalysisService } from '../common/ai/openRouterPageAnalys
 import type { PageAnalysisService } from '../common/ai/pageAnalysisService.ts';
 import { TokenService } from '../common/auth/tokenService.ts';
 import { AccountDisabledError } from '../common/errors/accountDisabledError.ts';
+import { BaseError } from '../common/errors/baseError.ts';
 import { ExternalServiceError } from '../common/errors/externalServiceError.ts';
 import { ForbiddenAccessError } from '../common/errors/forbiddenAccessError.ts';
 import { InputNotValidError } from '../common/errors/inputNotValidError.ts';
@@ -86,7 +87,10 @@ export class HttpServer {
       allowedHeaders: ['Content-Type', 'Authorization'],
       exposedHeaders: ['X-Request-ID'],
     });
-    await this.fastifyServer.register(fastifyMultipart, { limits: { fileSize: 1024 * 1024 * 1024 * 4 } });
+    // Uploads are buffered in memory, so the parser itself has to reject anything bigger than an allowed image.
+    await this.fastifyServer.register(fastifyMultipart, {
+      limits: { fileSize: this.config.image.maxFileSizeBytes, files: 1, fields: 5, parts: 6 },
+    });
     await this.fastifyServer.register(fastifyRateLimit, {
       global: true,
       max: this.config.rateLimit.global.max,
@@ -206,6 +210,29 @@ export class HttpServer {
         return reply.status(429).send({
           name: 'TooManyRequestsError',
           message: error.message || 'Rate limit exceeded',
+        });
+      }
+
+      // Protocol-level problems raised by Fastify and its plugins (malformed JSON, payload too large, unsupported
+      // media type, ...) are client errors and must not be reported as 500.
+      if (
+        error instanceof Error &&
+        !(error instanceof BaseError) &&
+        'statusCode' in error &&
+        typeof error.statusCode === 'number' &&
+        error.statusCode >= 400 &&
+        error.statusCode < 500
+      ) {
+        this.loggerService.info({
+          message: 'Rejected malformed request',
+          ...baseContext,
+          statusCode: error.statusCode,
+          errorCode: 'code' in error ? error.code : undefined,
+        });
+
+        return reply.status(error.statusCode).send({
+          name: 'InvalidRequestError',
+          message: error.statusCode === 413 ? 'Payload too large' : 'Invalid request',
         });
       }
 
