@@ -24,6 +24,25 @@ const steps = [
   },
 ];
 
+const highlights = [
+  {
+    title: 'One photo, every word',
+    text: 'About 15 seconds later each underlined word appears with its base form and meaning. Accept them all in one tap.',
+  },
+  {
+    title: 'Words live with their book',
+    text: "Everything you accept is saved on that book's page, together with the sentence it came from.",
+  },
+  {
+    title: 'A gentle reminder',
+    text: 'One optional sentence from your own reading. No streaks, no quizzes, nothing overdue.',
+  },
+  {
+    title: 'Yours to take along',
+    text: 'Export your words to Anki or a spreadsheet whenever you like.',
+  },
+];
+
 // The exact opening sentence of a public-domain book (verified against Project Gutenberg).
 const example = {
   pair: 'EN → PL',
@@ -116,6 +135,38 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="mt-16 sm:mt-24">
+        <h2 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">See it in action</h2>
+        <p className="mt-2 max-w-xl text-muted-foreground">A real page, real pencil underlines.</p>
+        <div className="mt-8 grid items-center gap-8 md:grid-cols-[18rem_1fr] md:gap-12">
+          <img
+            src="/screenshots/review.jpg"
+            alt="Underlined found 8 words on the photographed page and shows their Polish meanings"
+            width={738}
+            height={1320}
+            loading="lazy"
+            className="mx-auto w-full max-w-xs rounded-2xl border shadow-[0_12px_40px_-18px_rgba(60,40,0,0.25)]"
+          />
+          <ul className="grid gap-6">
+            {highlights.map(({ title, text }) => (
+              <li key={title}>
+                <h3 className="text-base font-semibold">{title}</h3>
+                <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">{text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-10">
+          <Button
+            asChild
+            size="lg"
+            className="h-12 px-7 text-base"
+          >
+            <Link to="/register">Try it with your book</Link>
+          </Button>
+        </div>
       </section>
     </div>
   );
