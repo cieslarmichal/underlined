@@ -31,6 +31,7 @@ ENV NODE_CONFIG_DIR=/app/apps/backend/config
 COPY package*.json ./
 COPY --from=installer /app/apps/backend/dist ./apps/backend
 COPY --from=installer /app/apps/backend/config ./apps/backend/config
+COPY --from=installer /app/apps/backend/emails ./apps/backend/emails
 COPY --from=installer /app/apps/backend/package.json ./apps/backend/package.json
 
 RUN npm ci --omit=dev
