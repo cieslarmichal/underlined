@@ -16,6 +16,13 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Radix locks scroll while a select/dialog is open and compensates the removed scrollbar with extra
+   body margin/padding. The gutter above is already reserved, so that compensation would shift the layout. */
+body[data-scroll-locked] {
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
 /* iOS zooms the page on focus when an input font is smaller than 16px. */
 input,
 select,
