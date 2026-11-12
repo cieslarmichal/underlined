@@ -62,7 +62,6 @@ Real pencil underlines work too: wobbly, slanted, photographed at an angle on a 
 
 ## Learning without pressure
 
-
 No streaks, no quizzes, nothing is ever overdue. Instead:
 
 - a single, optional **"Remember this?"** card on the reading screen — a sentence from your book with the word highlighted, and the meaning one tap away,
