@@ -123,7 +123,10 @@ export class HttpServer {
       reply.header('X-Frame-Options', 'DENY');
       reply.header('Referrer-Policy', 'no-referrer');
       reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-      reply.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+      reply.header(
+        'Content-Security-Policy',
+        "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+      );
       reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
       reply.header('Cross-Origin-Opener-Policy', 'same-origin');
       reply.header('Cross-Origin-Resource-Policy', 'cross-origin');
@@ -418,7 +421,8 @@ export class HttpServer {
 
     this.fastifyServer.get('/health', async (_request, reply) => {
       try {
-        await this.databaseClient.testConnection();
+        // commented because it uses neon db, so we let db sleep
+        // await this.databaseClient.testConnection();
         return await reply.status(200).send({ status: 'healthy' });
       } catch (error) {
         this.loggerService.warn({
