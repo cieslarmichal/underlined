@@ -9,6 +9,7 @@ import type { FastifySchemaValidationError } from 'fastify/types/schema.js';
 import { OpenRouterPageAnalysisService } from '../common/ai/openRouterPageAnalysisService.ts';
 import type { PageAnalysisService } from '../common/ai/pageAnalysisService.ts';
 import { TokenService } from '../common/auth/tokenService.ts';
+import type { EmailService } from '../common/emailService/emailService.ts';
 import { AccountDisabledError } from '../common/errors/accountDisabledError.ts';
 import { BaseError } from '../common/errors/baseError.ts';
 import { ExternalServiceError } from '../common/errors/externalServiceError.ts';
@@ -35,7 +36,6 @@ import { userRoutes } from '../modules/user/routes/userRoutes.ts';
 import { wordRoutes } from '../modules/word/routes/wordRoutes.ts';
 
 import { type Config } from './config.ts';
-import type { EmailQueueService } from './emailQueueService.ts';
 
 const maxBodySize = 10 * 1024 * 1024; // 10MB
 
@@ -44,7 +44,7 @@ export class HttpServer {
   private readonly loggerService: LoggerService;
   private readonly config: Config;
   private readonly databaseClient: DatabaseClient;
-  private readonly emailQueueService: EmailQueueService;
+  private readonly emailService: EmailService;
   private readonly pageAnalysisService: PageAnalysisService;
   private readonly bookSuggestionService: BookSuggestionService;
 
@@ -52,14 +52,14 @@ export class HttpServer {
     config: Config,
     loggerService: LoggerService,
     databaseClient: DatabaseClient,
-    emailQueueService: EmailQueueService,
+    emailService: EmailService,
     pageAnalysisService?: PageAnalysisService,
     bookSuggestionService?: BookSuggestionService,
   ) {
     this.config = config;
     this.loggerService = loggerService;
     this.databaseClient = databaseClient;
-    this.emailQueueService = emailQueueService;
+    this.emailService = emailService;
     this.bookSuggestionService = bookSuggestionService ?? new OpenLibraryService(config.openLibrary);
     this.pageAnalysisService =
       pageAnalysisService ?? new OpenRouterPageAnalysisService(new OpenRouterService(config.openRouter, loggerService));
@@ -416,7 +416,7 @@ export class HttpServer {
       config: this.config,
       loggerService: this.loggerService,
       tokenService,
-      emailQueueService: this.emailQueueService,
+      emailService: this.emailService,
     });
 
     this.fastifyServer.get('/health', async (_request, reply) => {

@@ -106,7 +106,6 @@
     "maxFileSizeBytes": 3145728,
     "allowedContentTypes": ["image/jpeg", "image/jpg", "image/png", "image/webp"]
   },
-  "emailQueueName": "send-email",
   "openRouter": {
     "baseUrl": "https://openrouter.ai/api/v1",
     "model": "anthropic/claude-sonnet-5.5",

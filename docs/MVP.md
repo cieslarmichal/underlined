@@ -92,7 +92,7 @@ Aplikacja ma pomagać zapamiętywać słowa bez presji: bez passy dni, bez liczn
 
 - Fiszki i powtórki w odstępach (FSRS). Na razie świadomie inaczej: patrz „Spokojna nauka”
 - Wymowa (TTS)
-- Wiele zdjęć naraz i przetwarzanie w tle (pg-boss)
+- Wiele zdjęć naraz i przetwarzanie w tle
 - Wybór pojedynczych słów i poprawki w podglądzie
 - Tłumaczenie całego zdania na żądanie
 - Więcej języków (ojczystych i książek)

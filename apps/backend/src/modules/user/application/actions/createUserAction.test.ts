@@ -1,10 +1,10 @@
 import { beforeEach, afterEach, describe, expect, it } from 'vitest';
 
 import { Generator } from '../../../../../tests/generator.ts';
+import type { EmailService } from '../../../../common/emailService/emailService.ts';
 import { ResourceAlreadyExistsError } from '../../../../common/errors/resourceAlreadyExistsError.ts';
 import { LoggerServiceFactory } from '../../../../common/logger/loggerServiceFactory.ts';
 import { createConfig } from '../../../../core/config.ts';
-import type { EmailQueueService } from '../../../../core/emailQueueService.ts';
 import { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
 import { oneTimeTokens, users } from '../../../../infrastructure/database/schema.ts';
 import { OneTimeTokenRepositoryImpl } from '../../infrastructure/repositories/oneTimeTokenRepositoryImpl.ts';
@@ -30,20 +30,18 @@ describe('CreateUserAction', () => {
     passwordService = new PasswordService(config);
 
     queuedEmails = [];
-    const emailQueueService = {
-      queueEmail: async (recipient: string, template: { name: string }): Promise<void> => {
-        queuedEmails.push({ recipient, templateName: template.name });
+    const emailService: EmailService = {
+      sendEmail: async ({ toEmail, template }): Promise<void> => {
+        queuedEmails.push({ recipient: toEmail, templateName: template.name });
       },
-      start: async (): Promise<void> => {},
-      stop: async (): Promise<void> => {},
-    } as unknown as EmailQueueService;
+    };
 
     createUserAction = new CreateUserAction(
       userRepository,
       oneTimeTokenRepository,
       loggerService,
       passwordService,
-      emailQueueService,
+      emailService,
       config,
       databaseClient,
     );

@@ -1,10 +1,10 @@
 import { CryptoService } from '../../../../common/crypto/cryptoService.ts';
+import type { EmailService } from '../../../../common/emailService/emailService.ts';
 import type { EmailTemplate } from '../../../../common/emailService/emailTemplate.ts';
 import { IdService } from '../../../../common/id/idService.ts';
 import { type LoggerService } from '../../../../common/logger/loggerService.ts';
 import type { ExecutionContext } from '../../../../common/types/executionContext.ts';
 import { type Config } from '../../../../core/config.ts';
-import type { EmailQueueService } from '../../../../core/emailQueueService.ts';
 import type { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
 import type { OneTimeTokenRepository } from '../../domain/repositories/oneTimeTokenRepository.ts';
 import { type UserRepository } from '../../domain/repositories/userRepository.ts';
@@ -17,7 +17,7 @@ export class ResendVerificationEmailAction {
   private readonly userRepository: UserRepository;
   private readonly loggerService: LoggerService;
   private readonly config: Config;
-  private readonly emailQueueService: EmailQueueService;
+  private readonly emailService: EmailService;
   private readonly oneTimeTokenRepository: OneTimeTokenRepository;
   private readonly databaseClient: DatabaseClient;
 
@@ -25,14 +25,14 @@ export class ResendVerificationEmailAction {
     userRepository: UserRepository,
     loggerService: LoggerService,
     config: Config,
-    emailQueueService: EmailQueueService,
+    emailService: EmailService,
     oneTimeTokenRepository: OneTimeTokenRepository,
     databaseClient: DatabaseClient,
   ) {
     this.userRepository = userRepository;
     this.loggerService = loggerService;
     this.config = config;
-    this.emailQueueService = emailQueueService;
+    this.emailService = emailService;
     this.oneTimeTokenRepository = oneTimeTokenRepository;
     this.databaseClient = databaseClient;
   }
@@ -98,20 +98,21 @@ export class ResendVerificationEmailAction {
         tx,
       );
 
-      const verificationLink = `${this.config.frontendUrl}/verify-email?token=${emailVerificationToken}`;
+    });
 
-      const emailTemplate: EmailTemplate = {
-        name: 'verifyAccount',
-        data: { verificationLink },
-      };
+    const verificationLink = `${this.config.frontendUrl}/verify-email?token=${emailVerificationToken}`;
 
-      await this.emailQueueService.queueEmail(user.email, emailTemplate);
+    const emailTemplate: EmailTemplate = {
+      name: 'verifyAccount',
+      data: { verificationLink },
+    };
 
-      this.loggerService.info({
-        message: 'Account verification email requested',
-        userId: user.id,
-        requestId,
-      });
+    await this.emailService.sendEmail({ toEmail: user.email, template: emailTemplate });
+
+    this.loggerService.info({
+      message: 'Account verification email requested',
+      userId: user.id,
+      requestId,
     });
   }
 }

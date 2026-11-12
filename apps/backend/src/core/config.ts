@@ -146,7 +146,6 @@ const configSchema = Type.Object({
     maxFileSizeBytes: Type.Number({ minimum: 1024 * 1024, maximum: 5 * 1024 * 1024 }),
     allowedContentTypes: Type.Array(Type.String({ minLength: 1 })),
   }),
-  emailQueueName: Type.String({ minLength: 1 }),
 });
 
 export type Config = Static<typeof configSchema>;

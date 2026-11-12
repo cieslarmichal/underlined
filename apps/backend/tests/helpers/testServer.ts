@@ -1,10 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 
 import type { PageAnalysisService } from '../../src/common/ai/pageAnalysisService.ts';
+import type { EmailService } from '../../src/common/emailService/emailService.ts';
 import { LoggerServiceFactory } from '../../src/common/logger/loggerServiceFactory.ts';
 import type { BookSuggestionService } from '../../src/common/openLibrary/bookSuggestionService.ts';
 import { createConfig } from '../../src/core/config.ts';
-import type { EmailQueueService } from '../../src/core/emailQueueService.ts';
 import { HttpServer } from '../../src/core/httpServer.ts';
 import { DatabaseClient } from '../../src/infrastructure/database/databaseClient.ts';
 
@@ -21,17 +21,15 @@ export async function createTestContext(
   testDatabase = new DatabaseClient(config.database, loggerService);
   await testDatabase.testConnection();
 
-  const mockEmailQueueService = {
-    queueEmail: async (): Promise<void> => {},
-    start: async (): Promise<void> => {},
-    stop: async (): Promise<void> => {},
-  } as unknown as EmailQueueService;
+  const mockEmailService: EmailService = {
+    sendEmail: async (): Promise<void> => {},
+  };
 
   testServer = new HttpServer(
     config,
     loggerService,
     testDatabase,
-    mockEmailQueueService,
+    mockEmailService,
     pageAnalysisService,
     bookSuggestionService,
   );

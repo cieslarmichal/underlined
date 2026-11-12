@@ -1,4 +1,5 @@
 import { CryptoService } from '../../../../common/crypto/cryptoService.ts';
+import type { EmailService } from '../../../../common/emailService/emailService.ts';
 import type { EmailTemplate } from '../../../../common/emailService/emailTemplate.ts';
 import { ResourceAlreadyExistsError } from '../../../../common/errors/resourceAlreadyExistsError.ts';
 import { IdService } from '../../../../common/id/idService.ts';
@@ -6,7 +7,6 @@ import type { LoggerService } from '../../../../common/logger/loggerService.ts';
 import type { ExecutionContext } from '../../../../common/types/executionContext.ts';
 import type { NativeLanguage } from '../../../../common/types/language.ts';
 import type { Config } from '../../../../core/config.ts';
-import type { EmailQueueService } from '../../../../core/emailQueueService.ts';
 import type { DatabaseClient } from '../../../../infrastructure/database/databaseClient.ts';
 import type { OneTimeTokenRepository } from '../../domain/repositories/oneTimeTokenRepository.ts';
 import type { UserRepository } from '../../domain/repositories/userRepository.ts';
@@ -24,7 +24,7 @@ export class CreateUserAction {
   private readonly oneTimeTokenRepository: OneTimeTokenRepository;
   private readonly loggerService: LoggerService;
   private readonly passwordService: PasswordService;
-  private readonly emailQueueService: EmailQueueService;
+  private readonly emailService: EmailService;
   private readonly config: Config;
   private readonly databaseClient: DatabaseClient;
 
@@ -33,7 +33,7 @@ export class CreateUserAction {
     oneTimeTokenRepository: OneTimeTokenRepository,
     loggerService: LoggerService,
     passwordService: PasswordService,
-    emailQueueService: EmailQueueService,
+    emailService: EmailService,
     config: Config,
     databaseClient: DatabaseClient,
   ) {
@@ -41,7 +41,7 @@ export class CreateUserAction {
     this.oneTimeTokenRepository = oneTimeTokenRepository;
     this.loggerService = loggerService;
     this.passwordService = passwordService;
-    this.emailQueueService = emailQueueService;
+    this.emailService = emailService;
     this.config = config;
     this.databaseClient = databaseClient;
   }
@@ -71,6 +71,8 @@ export class CreateUserAction {
 
     const hashedPassword = await this.passwordService.hashPassword(password);
 
+    let verificationEmailTemplate: EmailTemplate | undefined;
+
     const user = await this.databaseClient.transaction<User>(async (tx) => {
       const createdUser = await this.userRepository.create(
         {
@@ -98,15 +100,27 @@ export class CreateUserAction {
 
       const verificationLink = `${this.config.frontendUrl}/verify-email?token=${verificationToken}`;
 
-      const emailTemplate: EmailTemplate = {
+      verificationEmailTemplate = {
         name: 'verifyAccount',
         data: { verificationLink },
       };
 
-      await this.emailQueueService.queueEmail(createdUser.email, emailTemplate);
-
       return createdUser;
     });
+
+    if (verificationEmailTemplate) {
+      try {
+        await this.emailService.sendEmail({ toEmail: user.email, template: verificationEmailTemplate });
+      } catch (error) {
+        // The account exists already - the user can request the verification email again
+        this.loggerService.error({
+          message: 'Failed to send verification email',
+          requestId: context.requestId,
+          userId: user.id,
+          err: error,
+        });
+      }
+    }
 
     this.loggerService.info({
       message: 'User created successfully',

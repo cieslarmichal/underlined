@@ -2,10 +2,10 @@ import { Type, type FastifyPluginAsyncTypebox } from '@fastify/type-provider-typ
 
 import { createAuthenticationMiddleware } from '../../../common/auth/authMiddleware.ts';
 import type { TokenService } from '../../../common/auth/tokenService.ts';
+import type { EmailService } from '../../../common/emailService/emailService.ts';
 import { UnauthorizedAccessError } from '../../../common/errors/unathorizedAccessError.ts';
 import type { LoggerService } from '../../../common/logger/loggerService.ts';
 import type { Config } from '../../../core/config.ts';
-import type { EmailQueueService } from '../../../core/emailQueueService.ts';
 import type { DatabaseClient } from '../../../infrastructure/database/databaseClient.ts';
 import { startOfUtcDay } from '../../capture/application/actions/checkCaptureLimit.ts';
 import { CaptureRepositoryImpl } from '../../capture/infrastructure/repositories/captureRepositoryImpl.ts';
@@ -50,9 +50,9 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
   config: Config;
   loggerService: LoggerService;
   tokenService: TokenService;
-  emailQueueService: EmailQueueService;
+  emailService: EmailService;
 }> = async function (fastify, opts) {
-  const { config, databaseClient, loggerService, tokenService, emailQueueService } = opts;
+  const { config, databaseClient, loggerService, tokenService, emailService } = opts;
 
   const mapUserToResponse = (user: User): UserDto => {
     return {
@@ -88,7 +88,7 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     oneTimeTokenRepository,
     loggerService,
     passwordService,
-    emailQueueService,
+    emailService,
     config,
     databaseClient,
   );
@@ -120,7 +120,7 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     userRepository,
     loggerService,
     config,
-    emailQueueService,
+    emailService,
     oneTimeTokenRepository,
     databaseClient,
   );
@@ -128,7 +128,7 @@ export const userRoutes: FastifyPluginAsyncTypebox<{
     userRepository,
     loggerService,
     config,
-    emailQueueService,
+    emailService,
     oneTimeTokenRepository,
     databaseClient,
   );
